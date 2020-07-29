@@ -12,7 +12,9 @@
     "resolveJsonModule": true,
     "paths": {
       "*": ["node_modules/*"]
-    }
+    },
+    "target": "ES6",
+    "jsx": "react"
   },
   "include": [
     "src/**/*"

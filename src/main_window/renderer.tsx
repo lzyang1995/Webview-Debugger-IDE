@@ -27,9 +27,18 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import { Emulator } from './Emulator';
+import { ConsoleContent } from './ConsoleContent';
+import { App } from './App';
+// import './index.css';
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
 
-ReactDOM.render(<div>Hello World from React</div>, document.getElementById("root"));
+ReactDOM.render(
+    <App 
+        emulator={<Emulator />}
+        consoleContent={<ConsoleContent />}
+    />, 
+    document.getElementById("root")
+);
 

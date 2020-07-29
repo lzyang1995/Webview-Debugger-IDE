@@ -51,8 +51,8 @@
               "config": "./webpack.renderer.config.js",
               "entryPoints": [
                 {
-                  "html": "./src/index.html",
-                  "js": "./src/renderer.ts",
+                  "html": "./src/main_window/index.html",
+                  "js": "./src/main_window/renderer.tsx",
                   "name": "main_window"
                 }
               ]
@@ -78,6 +78,7 @@
     "electron": "9.1.1",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-react": "^7.20.5",
     "fork-ts-checker-webpack-plugin": "^3.1.1",
     "node-loader": "^0.6.0",
     "style-loader": "^0.23.1",
@@ -87,6 +88,7 @@
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "react-split": "^2.0.9"
   }
 }

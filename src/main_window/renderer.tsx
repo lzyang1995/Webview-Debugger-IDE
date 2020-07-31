@@ -27,18 +27,16 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Emulator } from './Emulator';
-import { ConsoleContent } from './ConsoleContent';
+import { remote } from 'electron';
 import { App } from './App';
 // import './index.css';
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
 
+const win = remote.getCurrentWindow();
+
 ReactDOM.render(
-    <App 
-        emulator={<Emulator />}
-        consoleContent={<ConsoleContent />}
-    />, 
+    <App win={win} />, 
     document.getElementById("root")
 );
 

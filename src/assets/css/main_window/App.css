@@ -21,7 +21,7 @@ body {
 
 #body {
     display: flex;
-    height: calc(100vh - 20px - 5px);
+    height: calc(100vh - 60px - 5px);
 }
 
 #console-choice {
@@ -30,5 +30,5 @@ body {
 }
 
 #console-content {
-    height: calc(100% - 30px);
+    height: calc(100% - 30px - 5px);
 }

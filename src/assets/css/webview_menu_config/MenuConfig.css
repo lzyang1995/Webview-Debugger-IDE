@@ -1,0 +1,15 @@
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.configTable {
+    flex: auto;
+    text-align: center;
+}
+
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+}

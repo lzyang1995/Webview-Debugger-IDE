@@ -54,6 +54,11 @@
                   "html": "./src/main_window/index.html",
                   "js": "./src/main_window/renderer.tsx",
                   "name": "main_window"
+                },
+                {
+                  "html": "./src/webview_menu_config/index.html",
+                  "js": "./src/webview_menu_config/renderer.tsx",
+                  "name": "webview_menu_config"
                 }
               ]
             }
@@ -86,6 +91,7 @@
     "typescript": "^3.7.0"
   },
   "dependencies": {
+    "antd": "^4.5.1",
     "electron-squirrel-startup": "^1.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

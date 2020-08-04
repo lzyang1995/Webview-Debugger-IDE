@@ -59,6 +59,11 @@
                   "html": "./src/webview_menu_config/index.html",
                   "js": "./src/webview_menu_config/renderer.tsx",
                   "name": "webview_menu_config"
+                },
+                {
+                  "html": "./src/protocol_config/index.html",
+                  "js": "./src/protocol_config/renderer.tsx",
+                  "name": "protocol_config"
                 }
               ]
             }
@@ -68,6 +73,7 @@
     }
   },
   "devDependencies": {
+    "@ant-design/dark-theme": "^2.0.2",
     "@electron-forge/cli": "6.0.0-beta.52",
     "@electron-forge/maker-deb": "6.0.0-beta.52",
     "@electron-forge/maker-rpm": "6.0.0-beta.52",
@@ -75,6 +81,7 @@
     "@electron-forge/maker-zip": "6.0.0-beta.52",
     "@electron-forge/plugin-webpack": "6.0.0-beta.52",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "@types/lodash.clonedeep": "^4.5.6",
     "@types/react": "^16.9.43",
     "@types/react-dom": "^16.9.8",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
@@ -93,6 +100,8 @@
   "dependencies": {
     "antd": "^4.5.1",
     "electron-squirrel-startup": "^1.0.0",
+    "immutability-helper": "^3.1.1",
+    "lodash.clonedeep": "^4.5.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-split": "^2.0.9"

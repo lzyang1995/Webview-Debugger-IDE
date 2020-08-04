@@ -28,6 +28,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { remote } from 'electron';
+// import 'antd/dist/antd.dark.css';
+import 'antd/dist/antd.css';
+
 import { App } from './App';
 // import './index.css';
 

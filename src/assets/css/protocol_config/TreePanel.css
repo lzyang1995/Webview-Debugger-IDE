@@ -1,0 +1,7 @@
+span:hover {
+    cursor: pointer;
+}
+
+.focusedSpan {
+    background-color: aqua;
+}

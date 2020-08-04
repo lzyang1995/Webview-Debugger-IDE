@@ -6,7 +6,9 @@ import fs from 'fs';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY: any;
+// export declare const WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// export declare const PROTOCOL_CONFIG_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -75,14 +77,15 @@ app.on('activate', () => {
  */
 
 export const WEBVIEW_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'webview_config.json');
+export const PROTOCOL_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'protocol_config.json');
 
-console.log(WEBVIEW_CONFIG_FILE_PATH);
+// console.log(WEBVIEW_CONFIG_FILE_PATH);
 
 /**
  * Functions
  */
 
-export function createWebviewConfigWindow(): void {
+export function createConfigWindow(title: string, entry: any): void {
   webviewConfigWin = new BrowserWindow({
     show: false,
     webPreferences: {
@@ -90,12 +93,12 @@ export function createWebviewConfigWindow(): void {
     },
     parent: mainWindow,
     modal: true,
-    title: "Webview菜单配置"
+    title: title
   })
 
   webviewConfigWin.removeMenu();
 
-  webviewConfigWin.loadURL(WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY);
+  webviewConfigWin.loadURL(entry);
 
   webviewConfigWin.webContents.openDevTools();
 
@@ -108,15 +111,15 @@ export function createWebviewConfigWindow(): void {
   })
 }
 
-export function readWebviewConfigFile(): Array<object> {
-  if (fs.existsSync(WEBVIEW_CONFIG_FILE_PATH)) {
+export function readConfigFile(path: string): object {
+  if (fs.existsSync(path)) {
     // console.log(JSON.parse(fs.readFileSync(WEBVIEW_CONFIG_FILE_PATH).toString()));
-    return JSON.parse(fs.readFileSync(WEBVIEW_CONFIG_FILE_PATH).toString());
+    return JSON.parse(fs.readFileSync(path).toString());
   } else {
     return null;
   }
 }
 
-export function writeWebViewConfigFile(config: object): void {
-  fs.writeFileSync(WEBVIEW_CONFIG_FILE_PATH, JSON.stringify(config, null, 4));
+export function writeConfigFile(config: object, path: string): void {
+  fs.writeFileSync(path, JSON.stringify(config, null, 4));
 }

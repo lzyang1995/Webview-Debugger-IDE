@@ -7,15 +7,13 @@
 
 .emulatorPhone {
     flex: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-align: center;
+    overflow: auto;
 }
 
 .phone {
-    width: 207px;
-    height: 368px;
     border: 1px solid black;
+    display: inline-block;
 }
 
 .webviewHeader {
@@ -29,9 +27,14 @@
 }
 
 .emulatorAddressbar {
+    flex: none;
     display: flex;
 }
 
 .emulatorAddressbar input {
     flex: auto;
+}
+
+.emulatorToolbar {
+    flex: none;
 }

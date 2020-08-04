@@ -3,34 +3,20 @@ import Split from 'react-split';
 import { remote, WebviewTag } from 'electron';
 
 import { WEBVIEW_BODY_ID, Emulator } from './Emulator';
+import { getElementStyle, getGutterStyle } from "../functions";
 import '../assets/css/main_window/App.css';
 
 const { webContents, BrowserView } = remote;
-
-function getElementStyle(
-    dimension: "height" | "width",
-    elementSize: number,
-    gutterSize: number
-): object {
-    return {
-        'flex-basis': `calc(${elementSize}% - ${gutterSize}px)`
-    };
-}
-
-function getGutterStyle(
-    dimension: "height" | "width",
-    gutterSize: number
-): object {
-    return {
-        'flex-basis': `${gutterSize}px`
-    };
-}
 
 export interface AppProps {
     win: Electron.BrowserWindow;
 }
 
-export class App extends React.Component<AppProps, {}> {
+export interface AppStates {
+    emulatorMinWidth: number;
+}
+
+export class App extends React.Component<AppProps, AppStates> {
 
     // for drag debounce
     private lastExecTime: number | null;
@@ -46,7 +32,12 @@ export class App extends React.Component<AppProps, {}> {
         this.execInterval = 10;
         this.devtoolView = new BrowserView();
 
+        this.state = {
+            emulatorMinWidth: 500,
+        }
+
         this.handleDrag = this.handleDrag.bind(this);
+        this.setEmulatorMinWidth = this.setEmulatorMinWidth.bind(this);
     }
 
     componentDidMount(): void {
@@ -57,12 +48,22 @@ export class App extends React.Component<AppProps, {}> {
         const webviewBodyView = document.getElementById(WEBVIEW_BODY_ID) as WebviewTag;
 
         (webviewBodyView as HTMLElement).addEventListener('dom-ready', () => {
+            // webviewBodyView.setUserAgent("Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Mobile Safari/537.36");
+            // console.log(webviewBodyView.getZoomFactor())
+            // webviewBodyView.setZoomFactor(2);
             webviewBodyView.loadURL("https://m.baidu.com");
+            console.log(webviewBodyView.getZoomFactor())
 
             const webviewBody = webContents.fromId(webviewBodyView.getWebContentsId());
             webviewBody.setDevToolsWebContents(this.devtoolView.webContents);
             webviewBody.openDevTools();
         }, {once: true});
+    }
+
+    setEmulatorMinWidth(width: number): void {
+        this.setState({
+            emulatorMinWidth: width,
+        })
     }
 
     updateDevtoolSize(): void {
@@ -85,13 +86,15 @@ export class App extends React.Component<AppProps, {}> {
     }
 
     render(): JSX.Element {
+        const { emulatorMinWidth } = this.state;
+
         return (
             <div id="container">
                 <div id="head"></div>
                 <Split
                     id="body"
                     sizes={[30, 25, 45]}
-                    minSize={[500, 100, 200]}
+                    minSize={[emulatorMinWidth, 100, 200]}
                     expandToMin={true}
                     gutterSize={5}
                     gutterAlign="center"
@@ -104,7 +107,9 @@ export class App extends React.Component<AppProps, {}> {
                     onDrag={this.handleDrag}
                 >
                     <div id="emulator">
-                        <Emulator />
+                        <Emulator 
+                            setEmulatorMinWidth={this.setEmulatorMinWidth}
+                        />
                     </div>
                     <div id="file-explorer"></div>
                     <Split

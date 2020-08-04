@@ -1,14 +1,14 @@
 /* eslint-disable react/prop-types */
-import React, { useContext, useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { remote } from 'electron';
-import { Table, Input, Button, Popconfirm, Form } from 'antd';
+import { Table, Button, Popconfirm, } from 'antd';
+
+import { tableComponent } from "../table_components/tableComponent";
 import { MAIN_MODULE } from '../constants';
 
 import '../assets/css/webview_menu_config/MenuConfig.css';
 
-const { readWebviewConfigFile, writeWebViewConfigFile } = remote.require(MAIN_MODULE);
-
-const EditableContext = React.createContext<any>(null);
+const { readConfigFile, writeConfigFile, WEBVIEW_CONFIG_FILE_PATH } = remote.require(MAIN_MODULE);
 
 export interface DataSourceItem {
     key: number;
@@ -23,91 +23,6 @@ export interface MenuConfigStates {
     dataSource: Array<DataSourceItem> | null;
     selectedRowKeys: Array<number> | null;
 }
-
-interface EditableRowProps {
-    index: number;
-}
-
-const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
-    const [form] = Form.useForm();
-    return (
-        <Form form={form} component={false}>
-            <EditableContext.Provider value={form}>
-                <tr {...props} />
-            </EditableContext.Provider>
-        </Form>
-    );
-};
-
-interface EditableCellProps {
-    title: React.ReactNode;
-    editable: boolean;
-    children: React.ReactNode;
-    dataIndex: string;
-    record: DataSourceItem;
-    handleSave: (record: DataSourceItem) => void;
-}
-
-const EditableCell: React.FC<EditableCellProps> = ({
-    title,
-    editable,
-    children,
-    dataIndex,
-    record,
-    handleSave,
-    ...restProps
-}) => {
-    const [editing, setEditing] = useState(false);
-    const inputRef = useRef<Input>();
-    const form = useContext(EditableContext);
-
-    useEffect(() => {
-        if (editing) {
-            inputRef.current.focus();
-        }
-    }, [editing]);
-
-    const toggleEdit = () => {
-        setEditing(!editing);
-        form.setFieldsValue({ [dataIndex]: record[dataIndex] });
-    };
-
-    const save = async () => {
-        try {
-            const values = await form.validateFields();
-
-            toggleEdit();
-            handleSave({ ...record, ...values });
-        } catch (errInfo) {
-            console.log('Save failed:', errInfo);
-        }
-    };
-
-    let childNode = children;
-
-    if (editable) {
-        childNode = editing ? (
-            <Form.Item
-                style={{ margin: 0 }}
-                name={dataIndex}
-                rules={[
-                    {
-                        required: true,
-                        message: `${title} is required.`,
-                    },
-                ]}
-            >
-                <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-            </Form.Item>
-        ) : (
-                <div className="editable-cell-value-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
-                    {children}
-                </div>
-            );
-    }
-
-    return <td {...restProps}>{childNode}</td>;
-};
 
 interface ColType {
     title: string;
@@ -168,7 +83,7 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
     }
 
     componentDidMount(): void {
-        const config = readWebviewConfigFile();
+        const config = readConfigFile(WEBVIEW_CONFIG_FILE_PATH);
 
         if (config === null) {
             // no config file
@@ -248,17 +163,15 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
             data: item.data
         }));
 
-        writeWebViewConfigFile(config);
+        writeConfigFile(config, WEBVIEW_CONFIG_FILE_PATH);
+    }
+
+    onCancel(): void {
+        remote.getCurrentWindow().close();
     }
 
     render(): JSX.Element {
         const { dataSource, selectedRowKeys } = this.state;
-        const components = {
-            body: {
-                row: EditableRow,
-                cell: EditableCell,
-            },
-        };
 
         const columns = this.tableCols.map(col => {
             if (!col.editable) {
@@ -288,7 +201,7 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
                         Add a New Menu Item
                     </Button>
                     <Table
-                        components={components}
+                        components={tableComponent}
                         rowClassName={() => 'editable-row'}
                         bordered
                         dataSource={dataSource}
@@ -299,7 +212,7 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
                 <div className="buttons">
                     <button>编辑配置文件</button>
                     <button onClick={this.onConfirm}>确认</button>
-                    <button>取消</button>
+                    <button onClick={this.onCancel}>取消</button>
                 </div>
             </div>
         );

@@ -1,0 +1,16 @@
+.ant-tabs-content.ant-tabs-content-top {
+    height: 100%;
+}
+
+.ant-tabs-nav {
+    margin-bottom: 0px !important;
+}
+
+.ant-tabs-nav-list {
+    margin-left: 32px;
+}
+
+.ant-tabs-nav-wrap {
+    height: 27px;
+    background-color: rgb(35, 35, 35);
+}

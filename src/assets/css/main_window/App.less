@@ -1,0 +1,109 @@
+@headHeight: 0px;
+@titleHeight: 30px;
+// @consoleChoiceHeight: 0px;
+@gutter: ~"1px solid black";
+
+body {
+    margin: 0;
+}
+
+// .gutter {
+//     background-color: transparent;
+//     // position: absolute;
+// }
+
+.gutter-horizontal::before {
+    content: "";
+    display: block;
+    width: 5px;
+    height: 32px;
+    position: absolute;
+    top: 0;
+    background-color: rgb(47, 47, 47);
+}
+
+.gutter-horizontal {
+    background-color: rgb(37, 37, 37);
+    position: relative;
+}
+
+.gutter-vertical {
+    background-color: rgb(35, 35, 35);
+}
+
+.gutter-horizontal:hover {
+    cursor: ew-resize;
+}
+
+.gutter-vertical:hover {
+    cursor: ns-resize;
+}
+
+// .gutter-horizontal {
+//     top: 0;
+//     bottom: 0;
+//     right: 0;
+// }
+
+// .gutter-vertical {
+//     bottom: 0;
+//     left: 0;
+//     right: 0;
+//     z-index: 100;
+// }
+
+#head {
+    background-color: rgb(66, 66, 66);
+    height: @headHeight;
+}
+
+#body {
+    display: flex;
+    height: calc(100vh - @headHeight - @titleHeight);
+}
+
+// #console-choice {
+//     height: @consoleChoiceHeight;
+// }
+
+// #console-content {
+//     height: calc(100% - @consoleChoiceHeight);
+// }
+
+#emulator {
+    position: relative;
+}
+
+#editor {
+    position: relative;
+}
+
+#editorContent {
+    background-color: rgb(30, 30, 30);
+    height: calc(100% - 30px);
+}
+
+#editor-and-console {
+    overflow: hidden;
+}
+
+// styling scrollbar
+/* Override default scrollbar */
+::-webkit-scrollbar, ::-webkit-scrollbar-track {
+    width: 8px;
+    background-color: transparent;
+}
+
+/* Customize Thumb */
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-color: rgba(0, 0, 0, 0.7);
+}

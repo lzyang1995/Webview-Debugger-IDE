@@ -1,0 +1,16 @@
+#editorHeader {
+    background-color: rgb(37, 37, 37);
+    height: 32px;
+    white-space: nowrap;
+    overflow: auto;
+}
+
+#editorHeader > span {
+    display: inline-block;
+    height: 32px;
+    min-width: 70px;
+    line-height: 32px;
+    padding: 0 8px;
+    background-color: rgb(45, 45, 45);
+    border-right: 1px solid rgb(37, 37, 37);
+}

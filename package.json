@@ -64,6 +64,11 @@
                   "html": "./src/protocol_config/index.html",
                   "js": "./src/protocol_config/renderer.tsx",
                   "name": "protocol_config"
+                },
+                {
+                  "html": "./src/test_win/index.html",
+                  "js": "./src/test_win/renderer.tsx",
+                  "name": "test_win"
                 }
               ]
             }
@@ -73,7 +78,6 @@
     }
   },
   "devDependencies": {
-    "@ant-design/dark-theme": "^2.0.2",
     "@electron-forge/cli": "6.0.0-beta.52",
     "@electron-forge/maker-deb": "6.0.0-beta.52",
     "@electron-forge/maker-rpm": "6.0.0-beta.52",
@@ -86,12 +90,17 @@
     "@types/react-dom": "^16.9.8",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
+    "circular-dependency-plugin": "^5.2.0",
+    "copy-webpack-plugin": "^6.0.3",
     "css-loader": "^3.0.0",
-    "electron": "9.1.1",
+    "electron": "9.2.0",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-react": "^7.20.5",
+    "file-loader": "^6.0.0",
     "fork-ts-checker-webpack-plugin": "^3.1.1",
+    "less-loader": "^6.2.0",
+    "monaco-editor-webpack-plugin": "^1.9.0",
     "node-loader": "^0.6.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^6.2.1",
@@ -99,11 +108,17 @@
   },
   "dependencies": {
     "antd": "^4.5.1",
+    "custom-electron-titlebar": "^3.2.3",
     "electron-squirrel-startup": "^1.0.0",
-    "immutability-helper": "^3.1.1",
     "lodash.clonedeep": "^4.5.0",
+    "monaco-editor": "^0.20.0",
+    "node-pty": "0.10.0-beta8",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-split": "^2.0.9"
+    "react-electron-browser-view": "^3.0.0",
+    "react-split": "^2.0.9",
+    "svg-inline-react": "^3.2.0",
+    "vscode-icons-js": "^10.1.1",
+    "xterm": "4.9.0-beta.8"
   }
 }

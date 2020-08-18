@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function getElementStyle(
     dimension: "height" | "width",
     elementSize: number,
@@ -14,7 +16,8 @@ export function getGutterStyle(
 ): object {
     return {
         'flex-basis': `${gutterSize}px`
-    };
+    }
 }
+
 
 

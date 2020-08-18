@@ -3,3 +3,23 @@
     border: 1px solid #d9d9d9;
     border-radius: 4px;
 }
+
+.successMsg span, .jsonData pre {
+    display: block;
+    border: 1px solid transparent;
+}
+
+.configDetailTable {
+    margin: 15px 0;
+}
+
+.configDetailTable button {
+    margin-top: 5px;
+}
+
+.configDetail {
+    background-color: rgb(36, 36, 36);
+    padding: 10px;
+    overflow: auto;
+    flex: auto;
+}

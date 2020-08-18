@@ -2,7 +2,7 @@ import React from 'react';
 import Split from 'react-split';
 import { remote } from 'electron';
 import { MAIN_MODULE } from '../constants';
-import { Button } from 'antd';
+import { Button, Space } from 'antd';
 
 import { TreePanel } from './TreePanel';
 import { ConfigDetail } from './ConfigDetail';
@@ -103,6 +103,7 @@ export class ProtocolConfig extends React.Component<{}, ProtocolConfigState> {
 
     onConfirm(): void {
         writeConfigFile(this.state.config, PROTOCOL_CONFIG_FILE_PATH);
+        remote.getCurrentWindow().close();
     }
 
     onCancel(): void {
@@ -151,9 +152,12 @@ export class ProtocolConfig extends React.Component<{}, ProtocolConfigState> {
                     />
                 </Split>
                 <div className="buttons">
-                    <Button>编辑配置文件</Button>
-                    <Button onClick={this.onConfirm}>确认</Button>
-                    <Button onClick={this.onCancel}>取消</Button>
+                    <Space>
+                        <Button>编辑配置文件</Button>
+                        <Button onClick={this.onConfirm}>确认</Button>
+                        <Button onClick={this.onCancel}>取消</Button>
+                        <span></span>
+                    </Space>
                 </div>
             </div>
         );

@@ -11,30 +11,41 @@ export interface ConfigDetailTableProps {
 
 export class ConfigDetailTable extends React.Component<ConfigDetailTableProps, {}> {
     render(): JSX.Element {
-        const columns = this.props.columns.map(col => {
+        const { dataSource, columns } = this.props;
+
+        const paramNames = dataSource.map(item => item.name);
+
+        const newColumns = columns.map(col => {
             if (!col.editable) {
                 return col;
             }
             return {
                 ...col,
-                onCell: (record: ParamCallbackItem | ParamRegularItem) => ({
-                    record,
-                    editable: col.editable,
-                    dataIndex: col.dataIndex,
-                    title: col.title,
-                    handleSave: this.props.handleSave,
-                }),
+                onCell: (record: ParamCallbackItem | ParamRegularItem) => {
+                    const otherParams = [...paramNames];
+                    otherParams.splice(otherParams.indexOf(record.name), 1);
+
+                    return {
+                        record,
+                        otherParams,
+                        editable: col.editable,
+                        dataIndex: col.dataIndex,
+                        title: col.title,
+                        handleSave: this.props.handleSave,
+                    }
+                },
             };
         });
 
         return (
-                <Table
-                    components={tableComponent}
-                    rowClassName={() => 'editable-row'}
-                    bordered
-                    dataSource={this.props.dataSource}
-                    columns={columns}
-                />
+            <Table
+                components={tableComponent}
+                rowClassName={() => 'editable-row'}
+                bordered
+                dataSource={dataSource}
+                columns={newColumns}
+                pagination={false}
+            />
         );
     }
 }

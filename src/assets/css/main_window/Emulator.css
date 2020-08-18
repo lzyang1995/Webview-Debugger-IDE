@@ -7,34 +7,78 @@
 
 .emulatorPhone {
     flex: auto;
-    text-align: center;
     overflow: auto;
+    background-color: rgb(46, 46, 46);
+    text-align: center;
 }
 
 .phone {
     border: 1px solid black;
     display: inline-block;
+    margin: 10px 0;
 }
 
 .webviewHeader {
     height: 40px;
-    background-color: bisque;
+    background-color: rgb(248, 248, 248);
+    display: flex;
+}
+
+.webviewHeader .backButton {
+    flex: none;
+    padding: 6px 5px 0 5px;
+    cursor: pointer;
+    
+}
+
+.webviewHeader .webviewMenu {
+    flex: none;
+    padding: 6px 9px 0 5px;
+    cursor: pointer;
+}
+
+.webviewHeader .webviewTitle {
+    flex: auto;
+    text-align: center;
+    line-height: 40px;
+    color: black;
+}
+
+.webviewMenu img {
+    height: 40px;
+    width: 40px;
 }
 
 #webviewBody {
     height: calc(100% - 40px);
-    /* display: block; */
 }
 
 .emulatorAddressbar {
     flex: none;
     display: flex;
+    background-color: rgb(56, 56, 56);
 }
 
 .emulatorAddressbar input {
     flex: auto;
+    margin-right: 2px;
+}
+
+.emulatorAddressbar div {
+    width: 37px;
+    text-align: center;
+    padding-top: 6px;
+}
+
+.emulatorAddressbar div:hover {
+    cursor: pointer;
 }
 
 .emulatorToolbar {
     flex: none;
+    background-color: rgb(56, 56, 56);
+}
+
+.message {
+    margin-top: 30px;
 }

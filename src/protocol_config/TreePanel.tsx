@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Popconfirm } from 'antd';
+import { Button, Popconfirm, Space } from 'antd';
 import cloneDeep from 'lodash.clonedeep';
 
 import { findNode, ConfigLeaf, ConfigNode } from './ProtocolConfig';
@@ -18,6 +18,8 @@ export interface TreePanelStates {
     canAdd: boolean;
     canEdit: boolean;
 }
+
+export const TREE_PANEL_CONTAINER_ID = "treePanelContainer";
 
 /**
  * 新添加的节点默认为叶子结点。
@@ -54,6 +56,17 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
         ul.append(this.createTree(config, "", ""));
 
         document.getElementById("treePanel").append(ul);
+
+        // add gutter to right border of Tree Panel
+        // const treePanelContainer = document.getElementById(TREE_PANEL_CONTAINER_ID);
+        // const timer = setInterval(() => {
+        //     const gutter = document.querySelector(".gutter-horizontal");
+        //     console.log(gutter);
+        //     if (gutter) {
+        //         treePanelContainer.append(gutter);
+        //         clearInterval(timer);
+        //     }
+        // }, 100);
     }
 
     componentDidUpdate(prevProps: TreePanelProps): void {
@@ -107,6 +120,12 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
                 this.hidden.set(currentPath, true);
             }
 
+            if (ul.hidden) {
+                li.style.listStyleType = "'\u25b8'";
+            } else {
+                li.style.listStyleType = "'\u25be'";
+            }
+
             li.append(ul);
         }
 
@@ -125,9 +144,17 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
             span.classList.add(FOCUSED_SPAN_CLASS);
 
             if (span.dataset.isLeaf === "false") {
-                const cur = !span.closest("li").querySelector("ul").hidden;
-                span.closest("li").querySelector("ul").hidden = cur;
+                const li = span.closest("li");
+                const cur = !li.querySelector("ul").hidden;
+                li.querySelector("ul").hidden = cur;
                 this.hidden.set(span.dataset.path, cur);
+
+                if (cur) {
+                    li.style.listStyleType = "'\u25b8'";
+                } else {
+                    li.style.listStyleType = "'\u25be'";
+                }
+
                 this.props.setSelectedItem("");
             } else {
                 this.props.setSelectedItem(span.dataset.path);
@@ -147,7 +174,7 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
                 canDelete,
                 canEdit,
             });
-        } 
+        }
         // else {
         //     if (this.focusedSpan) {
         //         this.focusedSpan.classList.remove(FOCUSED_SPAN_CLASS);
@@ -184,15 +211,44 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
             this.hidden.set(span.dataset.path, false);
         }
 
+        parentLi.style.listStyleType = "'\u25be'";
+
         ul.append(inputLi);
         input.focus();
 
+        // get the names of the same level. the name of the new item 
+        // must be different from those of the same level.
+        const parent = findNode(span.dataset.path, this.props.config);
+        let sameLevelNames: Array<any>;
+        if (span.dataset.isLeaf === "true") {
+            sameLevelNames = [];
+        } else {
+            sameLevelNames = (parent as ConfigNode).descendants.map(item => item.name);
+        }
+
+        const errMsg = document.createElement("span");
+        errMsg.style.color = "red";
+        errMsg.hidden = true;
+        input.after(errMsg);
+
+        input.addEventListener("focus", () => {
+            errMsg.hidden = true;
+        })
+
         input.addEventListener("blur", () => {
-            if (input.value.trim() === "") {
+            const val = input.value.trim();
+            if (val === "") {
                 inputLi.remove();
                 if (span.dataset.isLeaf === "true") {
                     ul.remove();
+                    parentLi.style.listStyleType = "none";
                 }
+                return;
+            }
+
+            if (sameLevelNames.includes(val)) {
+                errMsg.textContent = val + "already exists.";
+                errMsg.hidden = false;
                 return;
             }
 
@@ -200,10 +256,10 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
             const newConfig = cloneDeep(config);
             const cur = findNode(span.dataset.path, newConfig);
 
-            let successMsg = [...(span.dataset.path.split("/").slice(2)), input.value].join("/");
+            let successMsg = [...(span.dataset.path.split("/").slice(2)), val].join("/");
             successMsg = "/" + successMsg;
             const newProtocol: ConfigLeaf = {
-                name: input.value,
+                name: val,
                 isLeaf: true,
                 successMsg: "协议" + successMsg + "执行成功！",
                 params: [],
@@ -269,7 +325,6 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
         if (!span || span.dataset.path === "/root") return;
 
         const errMsg = document.createElement("span");
-        errMsg.textContent = "内容不能为空！";
         errMsg.style.color = "red";
         errMsg.hidden = true;
 
@@ -284,19 +339,32 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
         input.focus();
         input.after(errMsg);
 
+        // get the names of the same level. the name of the new item 
+        // must be different from those of the same level.
+        const parent = findNode(newPath, this.props.config) as ConfigNode;
+        const sameLevelNames = parent.descendants.map(item => item.name);
+        const ind = sameLevelNames.findIndex(name => name === span.textContent);
+        sameLevelNames.splice(ind, 1);
+
         input.addEventListener("focus", () => {
             errMsg.hidden = true;
         })
 
         input.addEventListener("blur", () => {
-            if (input.value.trim() === "") {
+            const val = input.value.trim();
+            if (val === "") {
+                errMsg.textContent = "Cannot be empty";
                 errMsg.hidden = false;
                 return;
             }
 
-            const value = input.value;
+            if (sameLevelNames.includes(val)) {
+                errMsg.textContent = val + "already exists."
+                errMsg.hidden = false;
+                return;
+            }
 
-            newPath = newPath + "/" + value;
+            newPath = newPath + "/" + val;
             if (this.focusedSpan) {
                 this.focusedSpan.classList.remove(FOCUSED_SPAN_CLASS);
             }
@@ -308,7 +376,7 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
             const { config } = this.props;
             const newConfig = cloneDeep(config);
             const cur = findNode(oldPath, newConfig);
-            cur.name = value;
+            cur.name = val;
 
             // since path name is changed, need to update this.hidden
             if (!cur.isLeaf) {
@@ -317,11 +385,12 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
                 this.hidden.set(newPath, tmp);
             }
 
+            this.props.setSelectedItem("");
             this.props.setConfig(newConfig);
             // since path name is changed, need to update selectedItem for leaves
             if (cur.isLeaf) {
                 this.props.setSelectedItem(newPath);
-            } 
+            }
         })
     }
 
@@ -329,15 +398,18 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
         const { canAdd, canDelete, canEdit } = this.state;
 
         return (
-            <div>
+            <div id="treePanelContainer">
                 <div id="treePanel" onClick={this.handleClick}>
                 </div>
-                <div>
-                    <Button onClick={this.handleAdd} disabled={!canAdd}>添加</Button>
-                    <Button onClick={this.handleEdit} disabled={!canEdit}>编辑</Button>
-                    <Popconfirm title="确认删除?" onConfirm={this.handleDelete}>
-                        <Button disabled={!canDelete}>删除</Button>
-                    </Popconfirm>
+                <div className="treePanelButtons">
+                    <Space>
+                        <Button onClick={this.handleAdd} disabled={!canAdd}>添加</Button>
+                        <Button onClick={this.handleEdit} disabled={!canEdit}>编辑</Button>
+                        <Popconfirm title="确认删除?" onConfirm={this.handleDelete}>
+                            <Button disabled={!canDelete}>删除</Button>
+                        </Popconfirm>
+                        <span></span>
+                    </Space>
                 </div>
             </div>
         );

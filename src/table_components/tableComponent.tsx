@@ -27,6 +27,7 @@ interface EditableCellProps {
     children: React.ReactNode;
     dataIndex: string;
     record: any;
+    otherParams: Array<string>;
     handleSave: (record: any) => void;
 }
 
@@ -36,6 +37,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     children,
     dataIndex,
     record,
+    otherParams,
     handleSave,
     ...restProps
 }) => {
@@ -77,6 +79,15 @@ const EditableCell: React.FC<EditableCellProps> = ({
                         required: true,
                         message: `${title} is required.`,
                     },
+                    {
+                        validator: (_: any, value: string): any => {
+                            if (!value || !otherParams.includes(value)) {
+                                return Promise.resolve();
+                            } else {
+                                return Promise.reject('Param Name already exists.');
+                            }
+                        }
+                    }
                 ]}
             >
                 <Input ref={inputRef} onPressEnter={save} onBlur={save} />

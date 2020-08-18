@@ -1,6 +1,8 @@
 import React from 'react';
 import cloneDeep from 'lodash.clonedeep';
 import { Button, Popconfirm } from 'antd';
+// eslint-disable-next-line import/no-unresolved
+import * as monaco from 'monaco-editor';
 
 import { findNode, ParamCallbackItem, ParamRegularItem, ConfigLeaf } from './ProtocolConfig';
 import { ConfigDetailTable } from "./ConfigDetailTable";
@@ -20,6 +22,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
         this.handleDelete = this.handleDelete.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleAdd = this.handleAdd.bind(this);
+        this.handleJsonDataClick = this.handleJsonDataClick.bind(this);
     }
 
     handleClick(tagName: string, callback: (cur: ConfigLeaf, val: string) => void): (event: any) => void {
@@ -48,7 +51,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
                 const { selectedItem, config } = this.props;
                 const newConfig = cloneDeep(config);
                 const cur = findNode(selectedItem, newConfig) as ConfigLeaf;
-                
+
                 try {
                     callback(cur, value);
                 } catch (err) {
@@ -67,43 +70,6 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
             input.after(errMsg);
         }
     }
-
-    // handleSuccessMsgClick(event: any): void {
-    //     const span = event.target as HTMLElement;
-
-    //     const input = document.createElement("input");
-    //     input.value = span.textContent;
-
-    //     const errMsg = document.createElement("span");
-    //     errMsg.textContent = "输入内容不能为空！";
-    //     errMsg.style.color = "red";
-    //     errMsg.hidden = true;
-
-    //     input.addEventListener("focus", () => {
-    //         errMsg.hidden = true;
-    //     })
-
-    //     input.addEventListener("blur", () => {
-    //         const value = input.value;
-    //         if (value.trim() === "") {
-    //             errMsg.hidden = false;
-    //             return;
-    //         }
-
-    //         errMsg.remove()
-    //         input.replaceWith(span); // This can work... great.
-
-    //         const { selectedItem, config } = this.props;
-    //         const newConfig = cloneDeep(config);
-    //         const cur = findNode(selectedItem, newConfig) as ConfigLeaf;
-    //         cur.successMsg = value;
-    //         this.props.setConfig(newConfig);
-    //     })
-
-    //     span.replaceWith(input);
-    //     input.focus();
-    //     input.after(errMsg);
-    // }
 
     handleDelete(key: number): void {
         const { selectedItem, config } = this.props;
@@ -127,7 +93,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
 
         if (newItem.name === "callback") {
             newItem.type = "callback";
-            
+
             if (newItem.reaction) {
                 delete newItem.reaction;
             }
@@ -166,7 +132,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
 
         const newItem: any = {
             key: maxKey + 1,
-            name: "newParam",
+            name: "newParam" + (maxKey + 1),
             type: type,
         };
         if (type === "regular") {
@@ -179,78 +145,78 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
         this.props.setConfig(newConfig);
     }
 
+    handleJsonDataClick(event: any): void {
+        const target = event.target as HTMLElement;
+
+        const editorContainer = document.createElement("div");
+        const configDetail = document.querySelector(".configDetail");
+        editorContainer.style.height = configDetail.clientHeight - parseInt(getComputedStyle(configDetail).padding) - target.getBoundingClientRect().top - 30 + "px";
+
+        const errMsg = document.createElement("span");
+        errMsg.style.color = "red";
+        errMsg.hidden = true;
+
+        const editor = monaco.editor.create(editorContainer, {
+            value: target.textContent,
+            language: 'json',
+            theme: "vs-dark",
+            codeLens: false,
+        });
+
+        editor.onDidFocusEditorText(() => {
+            errMsg.hidden = true;
+        })
+
+        editor.onDidBlurEditorText(() => {
+            const value = editor.getValue();
+            if (value.trim() === "") {
+                errMsg.textContent = "输入内容不能为空！";
+                errMsg.hidden = false;
+                return;
+            }
+
+            const { selectedItem, config } = this.props;
+            const newConfig = cloneDeep(config);
+            const cur = findNode(selectedItem, newConfig) as ConfigLeaf;
+
+            try {
+                const params = cur.params;
+                const callbackItem = params.find(item => item.name === "callback") as ParamCallbackItem;
+
+                if (!callbackItem) throw new Error("No Callback Parameter Found");
+
+                callbackItem.data = JSON.parse(value.trim());
+            } catch (err) {
+                errMsg.textContent = err.name + ": " + err.message;
+                errMsg.hidden = false;
+                return;
+            }
+
+            errMsg.remove()
+            editorContainer.replaceWith(target); // This can work... great.
+            this.props.setConfig(newConfig);
+        })
+
+        setTimeout(() => {
+            editor.layout();
+            editor.focus();
+        }, 500);
+
+        target.replaceWith(editorContainer);
+        editorContainer.after(errMsg);
+    }
+
     render(): JSX.Element {
         const { selectedItem, config } = this.props;
 
-        if (selectedItem === "") return <div></div>;
+        if (selectedItem === "") return <div className="configDetail"></div>;
 
         const selectedItemInfo = findNode(selectedItem, config) as ConfigLeaf;
         const successMsg = selectedItemInfo.successMsg;
         const params = selectedItemInfo.params;
 
-        // const callbackTableDataSource = params.filter(item => item.type === "callback");
-        // const regularTableDataSource = params.filter(item => item.type === "regular");
         const dataSource = params;
         const callbackItem = params.find(item => item.name === "callback") as ParamCallbackItem;
-
-        // const callbackTableCols = [
-        //     {
-        //         title: "Param Name",
-        //         dataIndex: "name",
-        //         editable: true,
-        //     },
-        //     {
-        //         title: "JSON Data",
-        //         dataIndex: "_data",
-        //         render: (_: any, record: ParamCallbackItem): JSX.Element => {
-        //             if (callbackTableDataSource.length >= 1) {
-        //                 return (
-        //                     <Button>Edit</Button>
-        //                 );
-        //             } else {
-        //                 return null;
-        //             }
-        //         }
-        //     },
-        //     {
-        //         title: "Actions",
-        //         dataIndex: "Actions",
-        //         render: (_: any, record: ParamCallbackItem): JSX.Element => {
-        //             if (callbackTableDataSource.length >= 1) {
-        //                 return (
-        //                     <Popconfirm title="确认删除?" onConfirm={() => this.handleDelete(record.key)}>
-        //                         <Button>Delete</Button>
-        //                     </Popconfirm>
-        //                 );
-        //             } else {
-        //                 return null;
-        //             }
-        //         }
-        //     }
-        // ];
-
-        // const regularTableCols = [
-        //     {
-        //         title: "Param Name",
-        //         dataIndex: "name",
-        //         editable: true,
-        //     },
-        //     {
-        //         title: "Actions",
-        //         dataIndex: "Actions",
-        //         render: (_: any, record: ParamRegularItem): JSX.Element => {
-        //             if (regularTableDataSource.length >= 1) {
-        //                 return (
-        //                     <Popconfirm title="确认删除?" onConfirm={() => this.handleDelete(record.key)}>
-        //                         <Button>Delete</Button>
-        //                     </Popconfirm>
-        //                 );
-        //             } else {
-        //                 return null;
-        //             }
-        //         }
-        //     }
-        // ];
 
         const tableCols = [
             {
@@ -259,7 +225,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
                 editable: true,
                 render: (name: any): JSX.Element => {
                     if (name === "callback") {
-                        return <span style={{color: "orangered"}}>{name}</span>;
+                        return <span style={{ color: "orangered" }}>{name}</span>;
                     } else {
                         return name;
                     }
@@ -286,43 +252,35 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
             cur.successMsg = val;
         })
 
-        const handleJsonDataClick = this.handleClick("textarea", (cur: ConfigLeaf, val: string): void => {
-            const params = cur.params;
-            const callbackItem = params.find(item => item.name === "callback") as ParamCallbackItem;
+        // const handleJsonDataClick = this.handleClick("textarea", (cur: ConfigLeaf, val: string): void => {
+        //     const params = cur.params;
+        //     const callbackItem = params.find(item => item.name === "callback") as ParamCallbackItem;
 
-            if (!callbackItem) throw new Error("No Callback Parameter Found");
+        //     if (!callbackItem) throw new Error("No Callback Parameter Found");
 
-            callbackItem.data = JSON.parse(val);
-        })
+        //     callbackItem.data = JSON.parse(val);
+        // })
 
         return (
-            <div>
+            <div className="configDetail">
                 <div className="successMsg">
-                    Success Message: <span onClick={handleSuccessMsgClick}>{successMsg}</span>
+                    <h3>Success Message: </h3>
+                    <span onClick={handleSuccessMsgClick}>{successMsg}</span>
                 </div>
-                {/* <div>
-                    <p>Callbacks</p>
-                    <ConfigDetailTable 
-                        dataSource={callbackTableDataSource}
-                        columns={callbackTableCols}
-                        handleSave={this.handleSave}
-                    />
-                    <Button type="primary" onClick={() => this.handleAdd("callback")}>添加</Button>
-                </div> */}
-                <div>
-                    <p>Regular</p>
-                    <ConfigDetailTable 
+                <div className="configDetailTable">
+                    <h3>Parameters:</h3>
+                    <ConfigDetailTable
                         dataSource={dataSource}
                         columns={tableCols}
                         handleSave={this.handleSave}
                     />
-                    <Button type="primary" onClick={() => this.handleAdd("regular")}>添加</Button>
+                    <Button onClick={() => this.handleAdd("regular")}>添加</Button>
                 </div>
                 {
-                    callbackItem ? 
+                    callbackItem ?
                         (<div className="jsonData">
-                            <p>Edit JSON Data: </p>
-                            <pre onClick={handleJsonDataClick}>{JSON.stringify(callbackItem.data, null, 4)}</pre>
+                            <h3>Edit JSON Data: </h3>
+                            <pre onClick={this.handleJsonDataClick}>{JSON.stringify(callbackItem.data, null, 4)}</pre>
                         </div>) :
                         null
                 }

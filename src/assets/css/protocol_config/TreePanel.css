@@ -2,6 +2,45 @@ span:hover {
     cursor: pointer;
 }
 
+#treePanelContainer {
+    position: relative;
+    border-right: 1px solid black;
+    background-color: rgb(46, 46, 46);
+    flex: auto;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
 .focusedSpan {
-    background-color: aqua;
+    background-color: rgba(80, 80, 80, 0.3);
+}
+
+#treePanel {
+    border-bottom: 1px solid rgb(10, 10, 10);
+    margin-bottom: 5px;
+    flex: auto;
+}
+
+#treePanel ul {
+    padding-left: 20px;
+}
+
+#treePanel span {
+    display: block;
+}
+
+#treePanel li {
+    list-style-type: none;
+}
+
+#treePanel li::marker {
+    color: black;
+    background-color: transparent;
+}
+
+.treePanelButtons {
+    text-align: right;
+    flex: none;
 }

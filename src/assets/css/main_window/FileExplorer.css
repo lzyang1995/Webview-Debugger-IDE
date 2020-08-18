@@ -1,0 +1,30 @@
+#file-explorer {
+    position: relative;
+    background-color: rgb(37, 37, 37);
+    overflow: auto;
+}
+
+#file-explorer-header {
+    height: 32px;
+    background-color: rgb(47, 47, 47);
+    line-height: 32px;
+    padding-left: 10px;
+    margin-bottom: 5px;
+}
+
+.ant-tree {
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.ant-tree .ant-tree-switcher-noop {
+    display: none;
+}
+
+.ant-tree .ant-tree-node-content-wrapper .ant-tree-iconEle {
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    margin-right: 8px;
+    vertical-align: middle;
+}

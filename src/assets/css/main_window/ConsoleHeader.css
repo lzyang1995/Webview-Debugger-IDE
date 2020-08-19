@@ -1,0 +1,27 @@
+#consoleHeaderContainer {
+    height: 27px;
+    background-color: rgb(35, 35, 35);
+    position: relative;
+}
+
+#consoleHeaderContainer span {
+    display: inline-block;
+    margin-left: 32px;
+    line-height: 27px;
+}
+
+#consoleHeaderContainer span:hover {
+    cursor: pointer;
+}
+
+#consoleHeaderBar {
+    position: absolute;
+    height: 2px;
+    background-color: #177ddc;
+    bottom: 0px;
+    transition: left 0.3s, width 0.3s;
+}
+
+.focusedTab {
+    color: #177ddc;
+}

@@ -1,11 +1,9 @@
 import os from 'os';
 import { Terminal } from 'xterm';
-import { remote } from 'electron';
-import { MAIN_MODULE } from '../constants';
+import { FitAddon } from 'xterm-addon-fit';
+import { spawn } from 'node-pty';
 
 import 'xterm/css/xterm.css';
-
-const { spawn } = remote.require(MAIN_MODULE);
 
 // Initialize node-pty with an appropriate shell
 const shell = process.env[os.platform() === 'win32' ? 'COMSPEC' : 'SHELL'];
@@ -19,7 +17,10 @@ const ptyProcess = spawn(shell, [], {
 
 // Initialize xterm.js and attach it to the DOM
 const xterm = new Terminal();
-xterm.open(document.getElementById('root'));
+const fitAddon = new FitAddon();
+xterm.loadAddon(fitAddon);
+xterm.open(document.body);
+fitAddon.fit();
 
 // Setup communication between xterm.js and node-pty
 xterm.onData(data => ptyProcess.write(data));

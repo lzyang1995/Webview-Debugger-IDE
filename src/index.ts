@@ -32,8 +32,8 @@ app.allowRendererProcessReuse = false;
 
 let mainWindow: Electron.BrowserWindow = null;
 let configWin: Electron.BrowserWindow = null;
-let protocolConfigFileWatcher: any = null;
-let webviewMenuConfigFileWatcher: any = null;
+// let protocolConfigFileWatcher: any = null;
+// let webviewMenuConfigFileWatcher: any = null;
 
 const createWindow = (): void => {
   // Create the browser window.
@@ -42,6 +42,7 @@ const createWindow = (): void => {
     webPreferences: {
       nodeIntegration: true,
       webviewTag: true,
+      devTools: !app.isPackaged,
       // webSecurity: false
     },
     frame: false,
@@ -91,23 +92,23 @@ function createTestWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  createTestWindow();
-  // Menu.setApplicationMenu(menu);
-  // createWindow();
+  // createTestWindow();
+  Menu.setApplicationMenu(menu);
+  createWindow();
 
-  // protocolConfigFileWatcher = fs.watchFile(PROTOCOL_CONFIG_FILE_PATH, (cur, prev) => {
-  //   if (cur.mtimeMs !== prev.mtimeMs) {
-  //     const config = JSON.parse(fs.readFileSync(PROTOCOL_CONFIG_FILE_PATH).toString());
-  //     mainWindow.webContents.send('protocol-config-changed', config);
-  //   }
-  // });
+  fs.watchFile(PROTOCOL_CONFIG_FILE_PATH, (cur, prev) => {
+    if (cur.mtimeMs !== prev.mtimeMs) {
+      const config = JSON.parse(fs.readFileSync(PROTOCOL_CONFIG_FILE_PATH).toString());
+      mainWindow.webContents.send('protocol-config-changed', config);
+    }
+  });
 
-  // webviewMenuConfigFileWatcher = fs.watchFile(WEBVIEW_CONFIG_FILE_PATH, (cur, prev) => {
-  //   if (cur.mtimeMs !== prev.mtimeMs) {
-  //     const config = JSON.parse(fs.readFileSync(WEBVIEW_CONFIG_FILE_PATH).toString());
-  //     mainWindow.webContents.send('webview-menu-config-changed', config);
-  //   }
-  // })
+  fs.watchFile(WEBVIEW_CONFIG_FILE_PATH, (cur, prev) => {
+    if (cur.mtimeMs !== prev.mtimeMs) {
+      const config = JSON.parse(fs.readFileSync(WEBVIEW_CONFIG_FILE_PATH).toString());
+      mainWindow.webContents.send('webview-menu-config-changed', config);
+    }
+  })
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -142,6 +143,7 @@ export function createConfigWindow(title: string, entry: any): void {
     frame: false,
     webPreferences: {
       nodeIntegration: true,
+      devTools: !app.isPackaged,
     },
     // parent: mainWindow,
     // modal: true,
@@ -152,7 +154,9 @@ export function createConfigWindow(title: string, entry: any): void {
 
   configWin.loadURL(entry);
 
-  configWin.webContents.openDevTools();
+  if (!app.isPackaged) {
+    configWin.webContents.openDevTools();
+  }
 
   configWin.once('ready-to-show', () => {
     configWin.show();
@@ -254,5 +258,7 @@ export function saveRegularFile(fullpath: string, content: string, stopWatch: bo
 
   fs.writeFileSync(fullpath, content);
 }
+
+// export { spawn };
 
 // console.log(getFileTree("E:/cmb_project/coding-75"));

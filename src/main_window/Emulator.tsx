@@ -164,7 +164,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
         //     OverlayScrollbars(iframe, {});
         // }
 
-        protocol.registerStringProtocol("cmblife", this.protocolHandler);
+        protocol.registerStringProtocol("abc", this.protocolHandler);
     }
 
     handleUrlChange(event: React.FormEvent<HTMLInputElement>): void {
@@ -210,7 +210,9 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
         const config = this.protocolConfig;
         const showProtocolResult = this.showProtocolResult.bind(this, url);
 
-        const paths = url.slice(10).split("/"); // length of "cmblife://" is 10
+        const schemeLen = 6;
+
+        const paths = url.slice(schemeLen).split("/"); // length of "abc://" is 10
         const lastPath = paths.pop();
         const indQuestionMark = lastPath.indexOf("?");
         let params: Array<string> = [];

@@ -39,8 +39,8 @@ import { App } from './App';
 import { Titlebar, Color, RGBA } from 'custom-electron-titlebar';
 // import { ConsoleContent } from './ConsoleContent';
 // import './index.css';
-import os from 'os';
-import pty from 'node-pty';
+// import os from 'os';
+// import pty from 'node-pty';
 // import pty from 'node-pty';
 // import { Terminal } from 'xterm';
 
@@ -72,17 +72,17 @@ new Titlebar({
 //         vs: "file:///E:/cmb_project/project/trail1/my-new-app/node_modules/monaco-editor/min/vs"
 //     }
 // });
-console.log(pty);
-const shell = process.env[os.platform() === 'win32' ? 'COMSPEC' : 'SHELL'];
-const ptyProcess = pty.spawn(shell, [], {
-  name: 'xterm-color',
-  cwd: process.cwd(),
-  env: process.env
-});
+// console.log(pty);
+// const shell = process.env[os.platform() === 'win32' ? 'COMSPEC' : 'SHELL'];
+// const ptyProcess = pty.spawn(shell, [], {
+//   name: 'xterm-color',
+//   cwd: process.cwd(),
+//   env: process.env
+// });
 
 // const win = remote.getCurrentWindow();
 
-console.log(process.versions);
+// console.log(process.versions);
 
 ReactDOM.render(
     <App />,

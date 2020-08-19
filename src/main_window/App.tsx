@@ -293,6 +293,7 @@ export class App extends React.Component<{}, AppStates> {
             refreshDevtool: Math.random(),
         })
 
+        this.consoleRef.current.fitTerminal();
         this.editor.layout();
     }
 

@@ -14,3 +14,7 @@
     height: 27px;
     background-color: rgb(35, 35, 35);
 }
+
+.terminalContainer {
+    height: 100%;
+}

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "module": "commonjs",
+    "module": "es6",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
@@ -15,8 +15,7 @@
       "*": ["node_modules/*"]
     },
     "target": "ES6",
-    "jsx": "react",
-    // "allowSyntheticDefaultImports": true
+    "jsx": "react"
   },
   "include": [
     "src/**/*"

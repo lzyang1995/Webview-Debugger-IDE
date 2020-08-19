@@ -69,6 +69,11 @@
                   "html": "./src/test_win/index.html",
                   "js": "./src/test_win/renderer.tsx",
                   "name": "test_win"
+                },
+                {
+                  "html": "./src/terminal/index.html",
+                  "js": "./src/terminal/renderer.tsx",
+                  "name": "terminal"
                 }
               ]
             }
@@ -119,6 +124,8 @@
     "react-split": "^2.0.9",
     "svg-inline-react": "^3.2.0",
     "vscode-icons-js": "^10.1.1",
-    "xterm": "4.9.0-beta.8"
+    "xterm": "4.9.0-beta.8",
+    "xterm-addon-fit": "^0.4.0",
+    "xterm-for-react": "^1.0.4"
   }
 }

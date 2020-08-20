@@ -3,6 +3,8 @@ import Split from 'react-split';
 import { remote, WebviewTag, ipcRenderer } from 'electron';
 // eslint-disable-next-line import/no-unresolved
 import * as monaco from 'monaco-editor';
+import cloneDeep from 'lodash.clonedeep';
+import InlineSVG from 'svg-inline-react';
 // import FileTree from 'react-filetree-electron';
 // import fsFileTree from 'fs-file-tree';
 
@@ -15,7 +17,7 @@ import { getElementStyle, getGutterStyle } from "../functions";
 import '../assets/css/main_window/App.less';
 
 const { webContents } = remote;
-const { readAndWatchRegularFile, saveRegularFile, saveAs } = remote.require(MAIN_MODULE);
+const { readAndWatchRegularFile, saveRegularFile, saveAs, getDirContent } = remote.require(MAIN_MODULE);
 
 export interface File {
     name: string;
@@ -39,7 +41,7 @@ export interface AppStates {
     focusedIndex: number;
     tabs: Array<Tab>;
     refreshDevtool: number;
-    projectRoot: string;
+    fileExplorerTree: Array<any>;
 }
 
 export class App extends React.Component<{}, AppStates> {
@@ -80,7 +82,7 @@ export class App extends React.Component<{}, AppStates> {
             focusedIndex: -1,
             tabs: [],
             refreshDevtool: Math.random(),
-            projectRoot: null,
+            fileExplorerTree: null,
         }
 
         this.handleDrag = this.handleDrag.bind(this);
@@ -88,6 +90,7 @@ export class App extends React.Component<{}, AppStates> {
         this.handleFileSelect = this.handleFileSelect.bind(this);
         this.updateFocusedIndex = this.updateFocusedIndex.bind(this);
         this.updateFocusedIndexAndTabs = this.updateFocusedIndexAndTabs.bind(this);
+        this.onLoadFileExplorerTreeData = this.onLoadFileExplorerTreeData.bind(this);
     }
 
     componentDidMount(): void {
@@ -230,7 +233,7 @@ export class App extends React.Component<{}, AppStates> {
 
             const newTabs = [...tabs];
             newTabs.splice(tabInd, 1, newTab);
-            
+
             this.setState({
                 tabs: newTabs
             })
@@ -310,7 +313,7 @@ export class App extends React.Component<{}, AppStates> {
         ipcRenderer.on("new-file", (event) => {
             const { tabs, focusedIndex } = this.state;
             const newTabs = [...tabs];
-            
+
             const newModel = monaco.editor.createModel("");
 
             newTabs.splice(focusedIndex + 1, 0, {
@@ -335,7 +338,7 @@ export class App extends React.Component<{}, AppStates> {
         ipcRenderer.on("file-opened", (event, fullpath, content) => {
             const { tabs, focusedIndex } = this.state;
             const newTabs = [...tabs];
-            
+
             const newModel = monaco.editor.createModel(content, null, monaco.Uri.file(fullpath));
 
             newTabs.splice(focusedIndex + 1, 0, {
@@ -354,6 +357,94 @@ export class App extends React.Component<{}, AppStates> {
                 focusedIndex: focusedIndex + 1,
             });
         })
+
+        ipcRenderer.on("open-project", (event, projectRootPath) => {
+            const treeData = cloneDeep(getDirContent(projectRootPath));
+            this.strToElement(treeData);
+            this.setState({
+                fileExplorerTree: treeData,
+            })
+        });
+
+        ipcRenderer.on("close-project", (event) => {
+            for (const tab of this.state.tabs) {
+                if (tab.model && !tab.model.isDisposed()) {
+                    tab.model.dispose();
+                }
+            }
+
+            this.setState({
+                focusedIndex: -1,
+                tabs: [],
+                fileExplorerTree: null,
+            });
+        })
+
+        ipcRenderer.on("directory-refresh", (event, dirPath, result) => {
+            const { fileExplorerTree } = this.state;
+            const newTreeData = cloneDeep(fileExplorerTree);
+            const node = this.findNodeByKey(newTreeData, dirPath);
+
+            const resultClone = cloneDeep(result);
+            this.strToElement(resultClone);
+
+            node.children = resultClone;
+            this.setState({
+                fileExplorerTree: newTreeData,
+            })
+        });
+
+        // ipcRenderer.on("check-unsaved-files", event => {
+        //     const { tabs } = this.state;
+        //     for (const tab of tabs) {
+        //         if (tab.changed) {
+        //             ipcRenderer.send("has-unsaved", true);
+        //         }
+        //     }
+
+        //     ipcRenderer.send("has-unsaved", false);
+        // })
+    }
+
+    onLoadFileExplorerTreeData(node: any): Promise<any> {
+        return new Promise((resolve) => {
+            if (node.children) {
+                console.log(node);
+                resolve();
+                return;
+            }
+
+            const childrenResult = cloneDeep(getDirContent(node.key));
+            this.strToElement(childrenResult);
+
+            const newTreeData = cloneDeep(this.state.fileExplorerTree);
+            const newNode = this.findNodeByKey(newTreeData, node.key);
+
+            newNode.children = childrenResult;
+            this.setState({
+                fileExplorerTree: newTreeData,
+            });
+            resolve();
+        })
+    }
+
+    findNodeByKey(data: Array<any>, key: string): any {
+        console.log(data, key);
+        const cur = data.find(item => key.startsWith(item.key));
+
+        if (cur.key === key) {
+            return cur;
+        } else {
+            return this.findNodeByKey(cur.children, key);
+        }
+    }
+
+    strToElement(treeData: Array<any>): void {
+        for (const item of treeData) {
+            if (item.icon) {
+                item.icon = <InlineSVG src={item.icon} />;
+            }
+        }
     }
 
     setEmulatorMinWidth(width: number): void {
@@ -443,10 +534,12 @@ export class App extends React.Component<{}, AppStates> {
     }
 
     render(): JSX.Element {
-        const { emulatorMinWidth, focusedIndex, tabs, refreshDevtool, projectRoot } = this.state;
+        const { emulatorMinWidth, focusedIndex, tabs, refreshDevtool, fileExplorerTree } = this.state;
 
         if (focusedIndex !== -1) {
             this.editor.setModel(tabs[focusedIndex].model);
+        } else if (this.editor) {
+            this.editor.setModel(null);
         }
 
         return (
@@ -473,8 +566,9 @@ export class App extends React.Component<{}, AppStates> {
                         />
                     </div>
                     <FileExplorer
-                        rootPath={projectRoot}
+                        fileExplorerTree={fileExplorerTree}
                         handleFileSelect={this.handleFileSelect}
+                        onLoadFileExplorerTreeData={this.onLoadFileExplorerTreeData}
                     />
                     <Split
                         id="editor-and-console"

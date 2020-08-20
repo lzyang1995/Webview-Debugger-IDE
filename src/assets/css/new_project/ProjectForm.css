@@ -1,0 +1,28 @@
+body {
+    background-color: rgb(36, 36, 36);
+}
+
+#container {
+    padding-top: 50px;
+}
+
+.ant-row {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.buttons {
+    margin-top: 15px;
+}
+
+.radio {
+    display: block;
+}
+
+.fieldTitle {
+    text-align: right;
+}
+
+.errMsg {
+    color: red;
+}

@@ -10,7 +10,7 @@ import { getElementStyle, getGutterStyle } from "../functions";
 
 import '../assets/css/protocol_config/ProtocolConfig.css';
 
-const { readConfigFile, writeConfigFile, PROTOCOL_CONFIG_FILE_PATH } = remote.require(MAIN_MODULE);
+const { readProtocolConfig, writeProtocolConfig } = remote.require(MAIN_MODULE);
 
 export interface ProtocolConfigState {
     selectedItem: string;
@@ -71,7 +71,7 @@ export class ProtocolConfig extends React.Component<{}, ProtocolConfigState> {
     }
 
     componentDidMount(): void {
-        const config = readConfigFile(PROTOCOL_CONFIG_FILE_PATH);
+        const config = readProtocolConfig();
         this.setState({
             config
         })
@@ -102,7 +102,7 @@ export class ProtocolConfig extends React.Component<{}, ProtocolConfigState> {
     // }
 
     onConfirm(): void {
-        writeConfigFile(this.state.config, PROTOCOL_CONFIG_FILE_PATH);
+        writeProtocolConfig(this.state.config);
         remote.getCurrentWindow().close();
     }
 

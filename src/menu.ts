@@ -1,11 +1,14 @@
 import { Menu, dialog, TouchBarColorPicker } from 'electron';
 import { 
-    createConfigWindow, 
-    openFile
+    createWindow, 
+    openFile,
+    closeProject,
+    openProject,
 } from './index';
 
 declare const WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY: any;
 declare const PROTOCOL_CONFIG_WEBPACK_ENTRY: any;
+declare const NEW_PROJECT_WEBPACK_ENTRY: any;
 
 const template: Array<Electron.MenuItemConstructorOptions> = [
     {
@@ -14,14 +17,35 @@ const template: Array<Electron.MenuItemConstructorOptions> = [
             {
                 label: 'New Project',
                 accelerator: 'CommandOrControl+Shift+N',
+                click(): void {
+                    createWindow("Create New Project", NEW_PROJECT_WEBPACK_ENTRY);
+                }
             },
             {
                 label: 'Open Project',
                 accelerator: 'CommandOrControl+Shift+O',
+                click(item, focusedWindow): void {
+                    if (!focusedWindow) {
+                        return dialog.showErrorBox(
+                            'Cannot Open Project',
+                            'The program window is not active'
+                        );
+                    }
+                    openProject();
+                },
             },
             {
                 label: 'Close Project',
-                accelerator: 'CommandOrControl+Shift+W'
+                accelerator: 'CommandOrControl+Shift+W',
+                click(item, focusedWindow): void {
+                    if (!focusedWindow) {
+                        return dialog.showErrorBox(
+                            'Cannot Close Project',
+                            'The program window is not active'
+                        );
+                    }
+                    closeProject();
+                },
             }
         ]
     },
@@ -101,13 +125,13 @@ const template: Array<Electron.MenuItemConstructorOptions> = [
             {
                 label: "Protocol Configuration",
                 click(): void {
-                    createConfigWindow("Protocol Configuration", PROTOCOL_CONFIG_WEBPACK_ENTRY);
+                    createWindow("Protocol Configuration", PROTOCOL_CONFIG_WEBPACK_ENTRY);
                 }
             },
             {
                 label: "Webview Menu Configuration",
                 click(): void {
-                    createConfigWindow("Webview Menu Configuration", WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY);
+                    createWindow("Webview Menu Configuration", WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY);
                 }
             },
             {

@@ -11,7 +11,7 @@ import { MAIN_MODULE } from '../constants';
 
 import '../assets/css/webview_menu_config/MenuConfig.css';
 
-const { readConfigFile, writeConfigFile, WEBVIEW_CONFIG_FILE_PATH } = remote.require(MAIN_MODULE);
+const { readWebviewMenuConfig, writeWebviewMenuConfig } = remote.require(MAIN_MODULE);
 
 export interface DataSourceItem {
     key: number;
@@ -90,7 +90,7 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
     }
 
     componentDidMount(): void {
-        const config = readConfigFile(WEBVIEW_CONFIG_FILE_PATH);
+        const config = readWebviewMenuConfig();
 
         if (config === null) {
             // no config file
@@ -216,7 +216,7 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
             data: item.data
         }));
 
-        writeConfigFile(config, WEBVIEW_CONFIG_FILE_PATH);
+        writeWebviewMenuConfig(config);
 
         remote.getCurrentWindow().close();
     }

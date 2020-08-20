@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, dialog } from 'electron';
+import { app, BrowserWindow, Menu, dialog, ipcMain } from 'electron';
 import { getIconForFile } from 'vscode-icons-js';
 import menu from './menu';
 import path from 'path';
@@ -22,8 +22,10 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
  * Constants
  */
 
-export const WEBVIEW_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'webview_config.json');
-export const PROTOCOL_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'protocol_config.json');
+// export const WEBVIEW_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'webview_config.json');
+// export const PROTOCOL_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'protocol_config.json');
+const WEBVIEW_MENU_CONFIG_FILE_NAME = "webview_menu_config.json";
+const PROTOCOL_CONFIG_FILE_NAME = "protocol_config.json";
 
 /** */
 let fileIconPath = path.join(app.getPath("documents"), 'vscode_file_icons');
@@ -39,10 +41,13 @@ app.allowRendererProcessReuse = false;
 
 let mainWindow: Electron.BrowserWindow = null;
 let configWin: Electron.BrowserWindow = null;
+let webviewMenuConfigFilePath: string = null;
+let protocolConfigFilePath: string = null;
 // let protocolConfigFileWatcher: any = null;
 // let webviewMenuConfigFileWatcher: any = null;
+const watchedFiles: Set<string> = new Set();
 
-const createWindow = (): void => {
+const createMainWindow = (): void => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     show: false,
@@ -58,7 +63,7 @@ const createWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  console.log("webcontents id:",mainWindow.webContents.id);
+  console.log("webcontents id:", mainWindow.webContents.id);
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.maximize();
@@ -101,21 +106,21 @@ function createTestWindow() {
 app.on('ready', () => {
   // createTestWindow();
   Menu.setApplicationMenu(menu);
-  createWindow();
+  createMainWindow();
 
-  fs.watchFile(PROTOCOL_CONFIG_FILE_PATH, (cur, prev) => {
-    if (cur.mtimeMs !== prev.mtimeMs) {
-      const config = JSON.parse(fs.readFileSync(PROTOCOL_CONFIG_FILE_PATH).toString());
-      mainWindow.webContents.send('protocol-config-changed', config);
-    }
-  });
+  // fs.watchFile(PROTOCOL_CONFIG_FILE_PATH, (cur, prev) => {
+  //   if (cur.mtimeMs !== prev.mtimeMs) {
+  //     const config = JSON.parse(fs.readFileSync(PROTOCOL_CONFIG_FILE_PATH).toString());
+  //     mainWindow.webContents.send('protocol-config-changed', config);
+  //   }
+  // });
 
-  fs.watchFile(WEBVIEW_CONFIG_FILE_PATH, (cur, prev) => {
-    if (cur.mtimeMs !== prev.mtimeMs) {
-      const config = JSON.parse(fs.readFileSync(WEBVIEW_CONFIG_FILE_PATH).toString());
-      mainWindow.webContents.send('webview-menu-config-changed', config);
-    }
-  })
+  // fs.watchFile(WEBVIEW_CONFIG_FILE_PATH, (cur, prev) => {
+  //   if (cur.mtimeMs !== prev.mtimeMs) {
+  //     const config = JSON.parse(fs.readFileSync(WEBVIEW_CONFIG_FILE_PATH).toString());
+  //     mainWindow.webContents.send('webview-menu-config-changed', config);
+  //   }
+  // })
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -131,7 +136,7 @@ app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createMainWindow();
   }
 });
 
@@ -144,7 +149,7 @@ app.on('activate', () => {
  * Functions
  */
 
-export function createConfigWindow(title: string, entry: any): void {
+export function createWindow(title: string, entry: any): void {
   configWin = new BrowserWindow({
     show: false,
     frame: false,
@@ -152,9 +157,9 @@ export function createConfigWindow(title: string, entry: any): void {
       nodeIntegration: true,
       devTools: !app.isPackaged,
     },
-    // parent: mainWindow,
-    // modal: true,
-    // title: title,
+    parent: mainWindow,
+    modal: true,
+    title: title,
   })
 
   configWin.removeMenu();
@@ -187,6 +192,22 @@ export function writeConfigFile(config: object, path: string): void {
   fs.writeFileSync(path, JSON.stringify(config, null, 4));
 }
 
+export function readProtocolConfig(): object {
+  return readConfigFile(protocolConfigFilePath);
+}
+
+export function readWebviewMenuConfig(): object {
+  return readConfigFile(webviewMenuConfigFilePath);
+}
+
+export function writeProtocolConfig(config: object): void {
+  writeConfigFile(config, protocolConfigFilePath)
+}
+
+export function writeWebviewMenuConfig(config: object): void {
+  writeConfigFile(config, webviewMenuConfigFilePath);
+}
+
 function getFileIcon(filename: string): string {
   const svgFile = getIconForFile(filename);
   return fs.readFileSync(path.join(fileIconPath, svgFile)).toString();
@@ -214,10 +235,12 @@ export function getDirContent(dirPath: string): Array<any> {
 
   fs.watchFile(dirPath, (cur, prev) => {
     if (cur.mtimeMs !== prev.mtimeMs) {
+      console.log("dir changed ", dirPath);
       const result = getDirContent(dirPath);
       mainWindow.webContents.send('directory-refresh', dirPath, result);
     }
   });
+  watchedFiles.add(dirPath);
 
   return resultDir.concat(resultFile);
 }
@@ -253,7 +276,8 @@ export function readAndWatchRegularFile(fullpath: string): string {
       const content = fs.readFileSync(fullpath).toString();
       mainWindow.webContents.send('editor-file-changed', fullpath, content);
     }
-  })
+  });
+  watchedFiles.add(fullpath);
 
   return result;
 }
@@ -273,13 +297,15 @@ export function saveRegularFile(fullpath: string, content: string, stopWatch: bo
           const content = fs.readFileSync(result.filePath).toString();
           mainWindow.webContents.send('editor-file-changed', result.filePath, content);
         }
-      })
+      });
+      watchedFiles.add(result.filePath);
     })
   } else {
     if (stopWatch) {
       fs.unwatchFile(fullpath);
+      watchedFiles.delete(fullpath);
     }
-  
+
     fs.writeFileSync(fullpath, content);
   }
 }
@@ -305,10 +331,12 @@ export function saveAs(fullpath: string, content: string): void {
         const content = fs.readFileSync(result.filePath).toString();
         mainWindow.webContents.send('editor-file-changed', result.filePath, content);
       }
-    })
+    });
+    watchedFiles.add(result.filePath);
 
     if (isNaN(+fullpath)) {
       fs.unwatchFile(fullpath);
+      watchedFiles.delete(fullpath);
     }
   })
 }
@@ -330,9 +358,153 @@ export function openFile(): void {
         const content = fs.readFileSync(fullpath).toString();
         mainWindow.webContents.send('editor-file-changed', fullpath, content);
       }
-    })
+    });
+    watchedFiles.add(fullpath);
   })
 }
+
+export function clearFileWatchers(): void {
+  for (const filepath of watchedFiles) {
+    fs.unwatchFile(filepath);
+  }
+  watchedFiles.clear();
+}
+
+export function closeProject(): void {
+  mainWindow.webContents.send('close-project');
+  clearFileWatchers();
+}
+
+export function openProject(): void {
+  dialog.showOpenDialog(mainWindow, {
+    title: 'Open Project',
+    defaultPath: app.getPath("documents"),
+    properties: ["openDirectory"]
+  }).then(result => {
+    if (result.canceled) return;
+
+    const projectRoot = result.filePaths[0];
+
+    webviewMenuConfigFilePath = path.join(projectRoot, WEBVIEW_MENU_CONFIG_FILE_NAME);
+    protocolConfigFilePath = path.join(projectRoot, PROTOCOL_CONFIG_FILE_NAME);
+
+    if (!fs.existsSync(webviewMenuConfigFilePath) || !fs.existsSync(protocolConfigFilePath)) {
+      dialog.showMessageBox(mainWindow, {
+        type: "error",
+        buttons: ["OK"],
+        defaultId: 0,
+        title: "Open Project Error",
+        message: "The folder does not have protocol configuration file or webview menu configuration file.",
+        noLink: true
+      });
+      webviewMenuConfigFilePath = null;
+      protocolConfigFilePath = null;
+      return;
+    }
+
+    closeProject();
+
+    fs.watchFile(protocolConfigFilePath, (cur, prev) => {
+      if (cur.mtimeMs !== prev.mtimeMs) {
+        const config = JSON.parse(fs.readFileSync(protocolConfigFilePath).toString());
+        mainWindow.webContents.send('protocol-config-changed', config);
+      }
+    });
+
+    fs.watchFile(webviewMenuConfigFilePath, (cur, prev) => {
+      if (cur.mtimeMs !== prev.mtimeMs) {
+        const config = JSON.parse(fs.readFileSync(webviewMenuConfigFilePath).toString());
+        mainWindow.webContents.send('webview-menu-config-changed', config);
+      }
+    });
+
+    watchedFiles.add(protocolConfigFilePath);
+    watchedFiles.add(webviewMenuConfigFilePath);
+
+    mainWindow.webContents.send("open-project", projectRoot);
+  })
+}
+
+export function createProject(projectPath: string, protocolFileSource: string, webviewMenuFileSource: string): void {
+  fs.mkdirSync(projectPath, { recursive: true });
+
+  if (protocolFileSource === "default") {
+    if (app.isPackaged) {
+      protocolFileSource = path.join(app.getPath("exe"), 'resources/app/.webpack/resources', PROTOCOL_CONFIG_FILE_NAME);
+    } else {
+      protocolFileSource = path.join(__dirname, '../resources', PROTOCOL_CONFIG_FILE_NAME);
+    }
+  }
+
+  if (webviewMenuFileSource === "default") {
+    if (app.isPackaged) {
+      webviewMenuFileSource = path.join(app.getPath("exe"), 'resources/app/.webpack/resources', WEBVIEW_MENU_CONFIG_FILE_NAME);
+    } else {
+      webviewMenuFileSource = path.join(__dirname, '../resources', WEBVIEW_MENU_CONFIG_FILE_NAME);
+    }
+  }
+
+  protocolConfigFilePath = path.join(projectPath, PROTOCOL_CONFIG_FILE_NAME);
+  webviewMenuConfigFilePath = path.join(projectPath, WEBVIEW_MENU_CONFIG_FILE_NAME);
+
+  fs.copyFileSync(protocolFileSource, protocolConfigFilePath);
+  fs.copyFileSync(webviewMenuFileSource, webviewMenuConfigFilePath);
+
+  closeProject();
+
+  fs.watchFile(protocolConfigFilePath, (cur, prev) => {
+    if (cur.mtimeMs !== prev.mtimeMs) {
+      const config = JSON.parse(fs.readFileSync(protocolConfigFilePath).toString());
+      mainWindow.webContents.send('protocol-config-changed', config);
+    }
+  });
+
+  fs.watchFile(webviewMenuConfigFilePath, (cur, prev) => {
+    if (cur.mtimeMs !== prev.mtimeMs) {
+      const config = JSON.parse(fs.readFileSync(webviewMenuConfigFilePath).toString());
+      mainWindow.webContents.send('webview-menu-config-changed', config);
+    }
+  });
+
+  watchedFiles.add(protocolConfigFilePath);
+  watchedFiles.add(webviewMenuConfigFilePath);
+
+  mainWindow.webContents.send("open-project", projectPath);
+}
+
+// resolve: can proceed
+// reject: cannot proceed
+// async function dealingUnsavedFiles(): Promise<any> {
+//   const hasUnsavedFile = await new Promise(resolve => {
+//     mainWindow.webContents.send("check-unsaved-files");
+
+//     ipcMain.once("has-unsaved", (event, hasUnsaved) => {
+//       resolve(hasUnsaved);
+//     })
+//   });
+
+//   if (!hasUnsavedFile) {
+//     return Promise.resolve();
+//   } else {
+//     const result = await dialog.showMessageBox(mainWindow, {
+//       message: "Your changes will be lost if you don't save them",
+//       title: "You have unsaved files",
+//       type: "warning",
+//       buttons: ["Save All", "Don't save", "Cancel"],
+//       defaultId: 0,
+//       cancelId: 2,
+//       noLink: true
+//     });
+
+//     if (result.response === 2) {
+//       return Promise.reject();
+//     } else if (result.response === 1) {
+//       return Promise.resolve();
+//     } else {
+
+//     }
+//   }
+// }
 
 // export { spawn };
 

@@ -74,6 +74,11 @@
                   "html": "./src/terminal/index.html",
                   "js": "./src/terminal/renderer.tsx",
                   "name": "terminal"
+                },
+                {
+                  "html": "./src/new_project/index.html",
+                  "js": "./src/new_project/renderer.tsx",
+                  "name": "new_project"
                 }
               ]
             }

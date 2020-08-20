@@ -15,10 +15,9 @@ import meatballsImg from '../assets/images/meatballs.png';
 // export interface EmulatorState {}
 
 const { 
-    readConfigFile, 
-    PROTOCOL_CONFIG_FILE_PATH, 
-    WEBVIEW_CONFIG_FILE_PATH,
-    createConfigWindow
+    readProtocolConfig,
+    readWebviewMenuConfig,
+    createWindow
 } = remote.require(MAIN_MODULE);
 const { protocol } = remote;
 const { Option } = Select;
@@ -107,7 +106,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
             url: "",
             deviceWidth: this.deviceOptions[0].width,
             deviceHeight: this.deviceOptions[0].height,
-            webviewMenuConfig: readConfigFile(WEBVIEW_CONFIG_FILE_PATH),
+            webviewMenuConfig: readWebviewMenuConfig(),
         }
 
         this.handleUrlChange = this.handleUrlChange.bind(this);
@@ -117,7 +116,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
         this.protocolHandler = this.protocolHandler.bind(this);
         this.handleBack = this.handleBack.bind(this);
 
-        this.protocolConfig = readConfigFile(PROTOCOL_CONFIG_FILE_PATH);
+        this.protocolConfig = readProtocolConfig();
         ipcRenderer.on('protocol-config-changed', (event, config) => {
             this.protocolConfig = config;
         })
@@ -365,7 +364,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
         // console.log(path.resolve(__static));
 
         const { webviewMenuConfig, deviceWidth, deviceHeight } = this.state;
-        const tmp = webviewMenuConfig.filter(item => item.enabled);
+        const tmp = webviewMenuConfig ? webviewMenuConfig.filter(item => item.enabled) : [];
         const tmp2 = tmp.map(item => {
             const handleClick = () => {
                 this.webviewBody.executeJavaScript(item.callback + "('" + JSON.stringify(item.data) + "')")
@@ -387,7 +386,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
         tmp2.push((
             <Menu.Item 
                 key="$" 
-                onClick={() => createConfigWindow("Webview菜单配置", WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY)}
+                onClick={() => createWindow("Webview菜单配置", WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY)}
                 style={{textAlign: "center"}}
             >
                 <PlusCircleOutlined />

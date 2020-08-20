@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu, dialog } from 'electron';
 import { getIconForFile } from 'vscode-icons-js';
 import menu from './menu';
 import path from 'path';
@@ -26,7 +26,14 @@ export const WEBVIEW_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'web
 export const PROTOCOL_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'protocol_config.json');
 
 /** */
-const fileIconPath = path.join(app.getPath("documents"), 'vscode_file_icons');
+let fileIconPath = path.join(app.getPath("documents"), 'vscode_file_icons');
+if (app.isPackaged) {
+  fileIconPath = path.join(app.getPath("exe"), 'resources/app/.webpack/resources/vscode_file_icons')
+} else {
+  fileIconPath = path.join(__dirname, '../resources/vscode_file_icons');
+}
+
+console.log(__dirname)
 
 app.allowRendererProcessReuse = false;
 
@@ -252,11 +259,79 @@ export function readAndWatchRegularFile(fullpath: string): string {
 }
 
 export function saveRegularFile(fullpath: string, content: string, stopWatch: boolean): void {
-  if (stopWatch) {
-    fs.unwatchFile(fullpath);
+  if (!isNaN(+fullpath)) {
+    dialog.showSaveDialog(mainWindow, {
+      title: "Save File",
+      defaultPath: app.getPath("documents"),
+    }).then(result => {
+      if (result.canceled) return;
+
+      fs.writeFileSync(result.filePath, content);
+      mainWindow.webContents.send('new-file-saved', result.filePath, fullpath, content);
+      fs.watchFile(result.filePath, (cur, prev) => {
+        if (cur.mtimeMs !== prev.mtimeMs) {
+          const content = fs.readFileSync(result.filePath).toString();
+          mainWindow.webContents.send('editor-file-changed', result.filePath, content);
+        }
+      })
+    })
+  } else {
+    if (stopWatch) {
+      fs.unwatchFile(fullpath);
+    }
+  
+    fs.writeFileSync(fullpath, content);
+  }
+}
+
+export function saveAs(fullpath: string, content: string): void {
+  let defaultPath;
+  if (!isNaN(+fullpath)) {
+    defaultPath = app.getPath("documents");
+  } else {
+    defaultPath = fullpath;
   }
 
-  fs.writeFileSync(fullpath, content);
+  dialog.showSaveDialog(mainWindow, {
+    title: "Save As",
+    defaultPath,
+  }).then(result => {
+    if (result.canceled) return;
+
+    fs.writeFileSync(result.filePath, content);
+    mainWindow.webContents.send('new-file-saved', result.filePath, fullpath, content);
+    fs.watchFile(result.filePath, (cur, prev) => {
+      if (cur.mtimeMs !== prev.mtimeMs) {
+        const content = fs.readFileSync(result.filePath).toString();
+        mainWindow.webContents.send('editor-file-changed', result.filePath, content);
+      }
+    })
+
+    if (isNaN(+fullpath)) {
+      fs.unwatchFile(fullpath);
+    }
+  })
+}
+
+export function openFile(): void {
+  dialog.showOpenDialog(mainWindow, {
+    title: "Open File",
+    defaultPath: app.getPath("documents"),
+    properties: ["openFile"]
+  }).then(result => {
+    if (result.canceled) return;
+
+    const fullpath = result.filePaths[0];
+    const content = fs.readFileSync(fullpath).toString();
+    app.addRecentDocument(fullpath);
+    mainWindow.webContents.send('file-opened', fullpath, content);
+    fs.watchFile(fullpath, (cur, prev) => {
+      if (cur.mtimeMs !== prev.mtimeMs) {
+        const content = fs.readFileSync(fullpath).toString();
+        mainWindow.webContents.send('editor-file-changed', fullpath, content);
+      }
+    })
+  })
 }
 
 // export { spawn };

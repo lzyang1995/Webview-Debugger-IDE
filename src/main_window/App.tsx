@@ -15,7 +15,7 @@ import { getElementStyle, getGutterStyle } from "../functions";
 import '../assets/css/main_window/App.less';
 
 const { webContents } = remote;
-const { readAndWatchRegularFile, saveRegularFile } = remote.require(MAIN_MODULE);
+const { readAndWatchRegularFile, saveRegularFile, saveAs } = remote.require(MAIN_MODULE);
 
 export interface File {
     name: string;
@@ -39,6 +39,7 @@ export interface AppStates {
     focusedIndex: number;
     tabs: Array<Tab>;
     refreshDevtool: number;
+    projectRoot: string;
 }
 
 export class App extends React.Component<{}, AppStates> {
@@ -58,6 +59,8 @@ export class App extends React.Component<{}, AppStates> {
     // private editor: monaco.editor.IStandaloneCodeEditor;
     private consoleRef: React.RefObject<Console>;
 
+    private newFileKey: number;
+
     constructor(props: {}) {
         super(props);
 
@@ -70,11 +73,14 @@ export class App extends React.Component<{}, AppStates> {
 
         this.consoleRef = React.createRef();
 
+        this.newFileKey = 1;
+
         this.state = {
             emulatorMinWidth: 400,
             focusedIndex: -1,
             tabs: [],
-            refreshDevtool: Math.random()
+            refreshDevtool: Math.random(),
+            projectRoot: null,
         }
 
         this.handleDrag = this.handleDrag.bind(this);
@@ -230,6 +236,32 @@ export class App extends React.Component<{}, AppStates> {
             })
         });
 
+        ipcRenderer.on("new-file-saved", (event, newPath, oldPath, content) => {
+            const { tabs } = this.state;
+
+            const tabInd = tabs.findIndex(item => item.fullpath === oldPath);
+            const tab = tabs[tabInd];
+
+            if (!tab.model.isDisposed()) {
+                tab.model.dispose();
+            }
+
+            const newModel = monaco.editor.createModel(content, null, monaco.Uri.file(newPath));
+            const newTab = Object.assign({}, tab, {
+                initVal: content,
+                model: newModel,
+                changed: false,
+                fullpath: newPath
+            });
+
+            const newTabs = [...tabs];
+            newTabs.splice(tabInd, 1, newTab);
+
+            this.setState({
+                tabs: newTabs
+            })
+        })
+
         this.editor.onDidChangeModelContent(() => {
             const now = Date.now();
             if (this.lastCheckContentTime === null || now - this.lastCheckContentTime > this.checkContentInterval) {
@@ -267,8 +299,61 @@ export class App extends React.Component<{}, AppStates> {
             const { focusedIndex, tabs } = this.state;
             const tab = tabs[focusedIndex];
             saveRegularFile(tab.fullpath, this.editor.getValue(), false);
+        });
+
+        ipcRenderer.on("save-as", (event) => {
+            const { focusedIndex, tabs } = this.state;
+            const tab = tabs[focusedIndex];
+            saveAs(tab.fullpath, this.editor.getValue());
         })
 
+        ipcRenderer.on("new-file", (event) => {
+            const { tabs, focusedIndex } = this.state;
+            const newTabs = [...tabs];
+            
+            const newModel = monaco.editor.createModel("");
+
+            newTabs.splice(focusedIndex + 1, 0, {
+                initVal: "",
+                position: {
+                    column: 1,
+                    lineNumber: 1
+                },
+                fullpath: String(this.newFileKey),
+                changed: false,
+                model: newModel
+            });
+
+            this.newFileKey++;
+
+            this.setState({
+                tabs: newTabs,
+                focusedIndex: focusedIndex + 1,
+            });
+        });
+
+        ipcRenderer.on("file-opened", (event, fullpath, content) => {
+            const { tabs, focusedIndex } = this.state;
+            const newTabs = [...tabs];
+            
+            const newModel = monaco.editor.createModel(content, null, monaco.Uri.file(fullpath));
+
+            newTabs.splice(focusedIndex + 1, 0, {
+                initVal: content,
+                position: {
+                    column: 1,
+                    lineNumber: 1
+                },
+                fullpath: fullpath,
+                changed: false,
+                model: newModel
+            });
+
+            this.setState({
+                tabs: newTabs,
+                focusedIndex: focusedIndex + 1,
+            });
+        })
     }
 
     setEmulatorMinWidth(width: number): void {
@@ -358,7 +443,7 @@ export class App extends React.Component<{}, AppStates> {
     }
 
     render(): JSX.Element {
-        const { emulatorMinWidth, focusedIndex, tabs, refreshDevtool } = this.state;
+        const { emulatorMinWidth, focusedIndex, tabs, refreshDevtool, projectRoot } = this.state;
 
         if (focusedIndex !== -1) {
             this.editor.setModel(tabs[focusedIndex].model);
@@ -388,7 +473,7 @@ export class App extends React.Component<{}, AppStates> {
                         />
                     </div>
                     <FileExplorer
-                        rootPath="E:/react_proj/my-app"
+                        rootPath={projectRoot}
                         handleFileSelect={this.handleFileSelect}
                     />
                     <Split

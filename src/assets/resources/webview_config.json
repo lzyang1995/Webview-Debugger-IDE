@@ -1,0 +1,49 @@
+[
+    {
+        "name": "abc",
+        "callback": "func456",
+        "enabled": true,
+        "data": {
+            "name": "John",
+            "age": "30"
+        }
+    },
+    {
+        "name": "item2",
+        "callback": "func",
+        "enabled": false,
+        "data": {
+            "result": [
+                1,
+                2,
+                3,
+                4,
+                5
+            ]
+        }
+    },
+    {
+        "name": "item4",
+        "callback": "callback5",
+        "enabled": false,
+        "data": {}
+    },
+    {
+        "name": "item5",
+        "callback": "callbackName",
+        "enabled": false,
+        "data": {}
+    },
+    {
+        "name": "abcc",
+        "callback": "callbackName",
+        "enabled": true,
+        "data": {}
+    },
+    {
+        "name": "New Item6",
+        "callback": "callbackName",
+        "enabled": true,
+        "data": {}
+    }
+]

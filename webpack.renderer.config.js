@@ -45,11 +45,11 @@ rules.push({
   use: [{ loader: 'style-loader' }, { loader: 'css-loader' }, { loader: 'less-loader' }],
 });
 
-// plugins.push(new CopyPlugin({
-//   patterns: [
-//     { from: './node_modules/node-pty', to: './test_win/node_modules/node-pty' },
-//   ],
-// }));
+plugins.push(new CopyPlugin({
+  patterns: [
+    { from: './src/assets/resources', to: '../resources' },
+  ],
+}));
 
 plugins.push(new MonacoWebpackPlugin({
   features: [!'codelens']

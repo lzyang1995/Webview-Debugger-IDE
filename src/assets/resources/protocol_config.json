@@ -1,0 +1,46 @@
+{
+    "name": "root",
+    "isLeaf": false,
+    "descendants": [
+        {
+            "name": "web",
+            "isLeaf": false,
+            "descendants": [
+                {
+                    "name": "settitle",
+                    "isLeaf": true,
+                    "successMsg": "设置webview标题",
+                    "params": [
+                        {
+                            "key": 1,
+                            "name": "title",
+                            "type": "regular",
+                            "reaction": "SET_TITLE"
+                        }
+                    ]
+                },
+                {
+                    "name": "info",
+                    "isLeaf": false,
+                    "descendants": [
+                        {
+                            "name": "getContact",
+                            "isLeaf": true,
+                            "successMsg": "获取联系人信息成功！",
+                            "params": [
+                                {
+                                    "key": 1,
+                                    "name": "callback",
+                                    "type": "callback",
+                                    "data": {
+                                        "aaaa": "hohoho"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

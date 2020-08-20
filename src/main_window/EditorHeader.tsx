@@ -1,6 +1,6 @@
 import React from 'react';
 import { CloseOutlined } from '@ant-design/icons';
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
 import path from 'path';
 
 import { Tab } from './App';
@@ -71,6 +71,11 @@ export class EditorHeader extends React.Component<EditorHeaderProps, {}> {
             this.scrollLeft = editorHeader.scrollLeft;
         });
         this.scrollFocusedIntoView();
+
+        ipcRenderer.on("close-file", (event) => {
+            const { focusedIndex, tabs } = this.props;
+            this.handleTabClose(tabs[focusedIndex].fullpath);
+        })
     }
 
     componentDidUpdate(): void {
@@ -151,7 +156,7 @@ export class EditorHeader extends React.Component<EditorHeaderProps, {}> {
                     tabs.map((item, index) => {
                         const { fullpath, changed } = item;
 
-                        let filename = path.basename(fullpath);
+                        let filename = !isNaN(+fullpath) ? "New File " + fullpath : path.basename(fullpath);
                         filename += changed ? "*" : "";
 
                         const backgroundColor = index === focusedIndex ? "rgb(30,30,30)" : "rgb(45,45,45)";

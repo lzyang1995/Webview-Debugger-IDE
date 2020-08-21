@@ -48,7 +48,7 @@ const createMainWindow = (): void => {
     webPreferences: {
       nodeIntegration: true,
       webviewTag: true,
-      // devTools: !app.isPackaged,
+      devTools: !app.isPackaged,
       // webSecurity: false
     },
     frame: false,
@@ -69,7 +69,9 @@ const createMainWindow = (): void => {
   })
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  if (!app.isPackaged) {
+    mainWindow.webContents.openDevTools();
+  }
 };
 
 // This method will be called when Electron has finished
@@ -112,7 +114,7 @@ export function createWindow(title: string, entry: any): void {
     frame: false,
     webPreferences: {
       nodeIntegration: true,
-      // devTools: !app.isPackaged,
+      devTools: !app.isPackaged,
     },
     parent: mainWindow,
     modal: true,
@@ -123,10 +125,9 @@ export function createWindow(title: string, entry: any): void {
 
   configWin.loadURL(entry);
 
-  // if (!app.isPackaged) {
-  //   configWin.webContents.openDevTools();
-  // }
-  configWin.webContents.openDevTools();
+  if (!app.isPackaged) {
+    configWin.webContents.openDevTools();
+  }
 
   configWin.once('ready-to-show', () => {
     configWin.show();

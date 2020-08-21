@@ -9,6 +9,17 @@
         }
     },
     {
+        "name": "commomCallback",
+        "callback": "commomCallback",
+        "enabled": true,
+        "data": {
+            "contacts": [
+                "Tom",
+                "Peter"
+            ]
+        }
+    },
+    {
         "name": "item2",
         "callback": "func",
         "enabled": false,

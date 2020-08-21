@@ -5,6 +5,7 @@ import { remote, WebviewTag, ipcRenderer } from 'electron';
 import * as monaco from 'monaco-editor';
 import cloneDeep from 'lodash.clonedeep';
 import InlineSVG from 'svg-inline-react';
+import path from 'path';
 // import FileTree from 'react-filetree-electron';
 // import fsFileTree from 'fs-file-tree';
 
@@ -14,7 +15,7 @@ import { EditorHeader } from './EditorHeader';
 import { Console } from './Console';
 import { MAIN_MODULE } from '../constants';
 import { getElementStyle, getGutterStyle } from "../functions";
-import '../assets/css/main_window/App.less';
+import '../assets/css/main_window/App.css';
 
 const { webContents } = remote;
 const { readAndWatchRegularFile, saveRegularFile, saveAs, getDirContent } = remote.require(MAIN_MODULE);
@@ -42,6 +43,7 @@ export interface AppStates {
     tabs: Array<Tab>;
     refreshDevtool: number;
     fileExplorerTree: Array<any>;
+    projectName: string;
 }
 
 export class App extends React.Component<{}, AppStates> {
@@ -62,6 +64,7 @@ export class App extends React.Component<{}, AppStates> {
     private consoleRef: React.RefObject<Console>;
 
     private newFileKey: number;
+    private projectRootPath: string;
 
     constructor(props: {}) {
         super(props);
@@ -76,6 +79,7 @@ export class App extends React.Component<{}, AppStates> {
         this.consoleRef = React.createRef();
 
         this.newFileKey = 1;
+        this.projectRootPath = null;
 
         this.state = {
             emulatorMinWidth: 400,
@@ -83,6 +87,7 @@ export class App extends React.Component<{}, AppStates> {
             tabs: [],
             refreshDevtool: Math.random(),
             fileExplorerTree: null,
+            projectName: null,
         }
 
         this.handleDrag = this.handleDrag.bind(this);
@@ -359,10 +364,12 @@ export class App extends React.Component<{}, AppStates> {
         })
 
         ipcRenderer.on("open-project", (event, projectRootPath) => {
+            this.projectRootPath = projectRootPath;
             const treeData = cloneDeep(getDirContent(projectRootPath));
             this.strToElement(treeData);
             this.setState({
                 fileExplorerTree: treeData,
+                projectName: path.basename(projectRootPath),
             })
         });
 
@@ -377,18 +384,43 @@ export class App extends React.Component<{}, AppStates> {
                 focusedIndex: -1,
                 tabs: [],
                 fileExplorerTree: null,
+                projectName: null,
             });
         })
 
         ipcRenderer.on("directory-refresh", (event, dirPath, result) => {
             const { fileExplorerTree } = this.state;
-            const newTreeData = cloneDeep(fileExplorerTree);
-            const node = this.findNodeByKey(newTreeData, dirPath);
-
+            let newTreeData = cloneDeep(fileExplorerTree);
             const resultClone = cloneDeep(result);
             this.strToElement(resultClone);
 
-            node.children = resultClone;
+            let oldContent; 
+            const newContent = resultClone as Array<any>;
+            const node = this.findNodeByKey(newTreeData, dirPath);
+            if (dirPath === this.projectRootPath) {
+                oldContent = newTreeData;
+            } else {
+                oldContent = node.children;
+            }
+
+            const oldContentMap = new Map();
+            for (const item of oldContent) {
+                oldContentMap.set(item.key, item);
+            }
+
+            for (let i = 0;i < newContent.length;i++) {
+                const key = newContent[i].key;
+                if (oldContentMap.has(key)) {
+                    newContent[i] = oldContentMap.get(key);
+                }
+            }
+
+            if (dirPath === this.projectRootPath) {
+                newTreeData = newContent;
+            } else {
+                node.children = newContent;
+            }
+
             this.setState({
                 fileExplorerTree: newTreeData,
             })
@@ -429,14 +461,22 @@ export class App extends React.Component<{}, AppStates> {
     }
 
     findNodeByKey(data: Array<any>, key: string): any {
-        console.log(data, key);
-        const cur = data.find(item => key.startsWith(item.key));
+        // console.log(data, key);
+        if (key === this.projectRootPath) return data;
+
+        const cur = data.find(item => this.isParentPath(item.key, key));
+        // console.log(cur);
 
         if (cur.key === key) {
             return cur;
         } else {
             return this.findNodeByKey(cur.children, key);
         }
+    }
+
+    isParentPath(parent: string, child: string): boolean {
+        const relative = path.relative(parent, child);
+        return !relative.startsWith("..") && !path.isAbsolute(relative);
     }
 
     strToElement(treeData: Array<any>): void {
@@ -534,7 +574,7 @@ export class App extends React.Component<{}, AppStates> {
     }
 
     render(): JSX.Element {
-        const { emulatorMinWidth, focusedIndex, tabs, refreshDevtool, fileExplorerTree } = this.state;
+        const { emulatorMinWidth, focusedIndex, tabs, refreshDevtool, fileExplorerTree, projectName } = this.state;
 
         if (focusedIndex !== -1) {
             this.editor.setModel(tabs[focusedIndex].model);
@@ -567,6 +607,7 @@ export class App extends React.Component<{}, AppStates> {
                     </div>
                     <FileExplorer
                         fileExplorerTree={fileExplorerTree}
+                        projectName={projectName}
                         handleFileSelect={this.handleFileSelect}
                         onLoadFileExplorerTreeData={this.onLoadFileExplorerTreeData}
                     />

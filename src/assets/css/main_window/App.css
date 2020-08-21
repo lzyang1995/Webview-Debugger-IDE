@@ -1,16 +1,6 @@
-@headHeight: 0px;
-@titleHeight: 30px;
-// @consoleChoiceHeight: 0px;
-@gutter: ~"1px solid black";
-
 body {
     margin: 0;
 }
-
-// .gutter {
-//     background-color: transparent;
-//     // position: absolute;
-// }
 
 .gutter-horizontal::before {
     content: "";
@@ -39,36 +29,15 @@ body {
     cursor: ns-resize;
 }
 
-// .gutter-horizontal {
-//     top: 0;
-//     bottom: 0;
-//     right: 0;
-// }
-
-// .gutter-vertical {
-//     bottom: 0;
-//     left: 0;
-//     right: 0;
-//     z-index: 100;
-// }
-
 #head {
     background-color: rgb(66, 66, 66);
-    height: @headHeight;
+    height: 0px;
 }
 
 #body {
     display: flex;
-    height: calc(100vh - @headHeight - @titleHeight);
+    height: calc(100vh - 0px - 30px);
 }
-
-// #console-choice {
-//     height: @consoleChoiceHeight;
-// }
-
-// #console-content {
-//     height: calc(100% - @consoleChoiceHeight);
-// }
 
 #emulator {
     position: relative;
@@ -87,7 +56,6 @@ body {
     overflow: hidden;
 }
 
-// styling scrollbar
 /* Override default scrollbar */
 ::-webkit-scrollbar, ::-webkit-scrollbar-track {
     width: 8px;

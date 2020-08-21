@@ -13,6 +13,7 @@ const { getDirContent } = remote.require(MAIN_MODULE);
 
 export interface FileExplorerProps {
     fileExplorerTree: Array<any>;
+    projectName: string;
     handleFileSelect: (seletedFile: File) => void;
     onLoadFileExplorerTreeData: (node: any) => Promise<any>;
 }
@@ -119,12 +120,13 @@ export class FileExplorer extends React.Component<FileExplorerProps, {}> {
         //         <InlineSVG src={treeData[3].icon} />
         //     </div>
         // )
-        const { fileExplorerTree, onLoadFileExplorerTreeData } = this.props;
+        const { fileExplorerTree, projectName ,onLoadFileExplorerTreeData } = this.props;
 
         return (
             <div id="file-explorer">
                 <div id="file-explorer-header">File Explorer</div>
                 <div id="file-explorer-content">
+                    <h3 className="projectName">{projectName === null ? "" : projectName}</h3>
                     {
                         fileExplorerTree === null ?
                             <div></div> :

@@ -17,9 +17,14 @@
     overflow: auto;
 }
 
+.projectName {
+    padding-left: 5px;
+}
+
 .ant-tree {
     font-size: 12px;
     white-space: nowrap;
+    margin-left: 10px;
 }
 
 .ant-tree .ant-tree-switcher-noop {

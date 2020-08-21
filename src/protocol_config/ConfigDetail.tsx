@@ -31,6 +31,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
 
             const input = document.createElement(tagName) as HTMLInputElement | HTMLTextAreaElement;
             input.value = target.textContent;
+            input.classList.add("ant-input");
 
             const errMsg = document.createElement("span");
             errMsg.style.color = "red";

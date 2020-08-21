@@ -28,9 +28,9 @@ const WEBVIEW_MENU_CONFIG_FILE_NAME = "webview_menu_config.json";
 const PROTOCOL_CONFIG_FILE_NAME = "protocol_config.json";
 
 /** */
-let fileIconPath = path.join(app.getPath("documents"), 'vscode_file_icons');
+let fileIconPath: string;
 if (app.isPackaged) {
-  fileIconPath = path.join(app.getPath("exe"), 'resources/app/.webpack/resources/vscode_file_icons')
+  fileIconPath = path.join(path.dirname(app.getPath("exe")), 'resources/app/.webpack/resources/vscode_file_icons')
 } else {
   fileIconPath = path.join(__dirname, '../resources/vscode_file_icons');
 }
@@ -54,7 +54,7 @@ const createMainWindow = (): void => {
     webPreferences: {
       nodeIntegration: true,
       webviewTag: true,
-      devTools: !app.isPackaged,
+      // devTools: !app.isPackaged,
       // webSecurity: false
     },
     frame: false,
@@ -75,7 +75,7 @@ const createMainWindow = (): void => {
   })
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 };
 
 function createTestWindow() {
@@ -155,7 +155,7 @@ export function createWindow(title: string, entry: any): void {
     frame: false,
     webPreferences: {
       nodeIntegration: true,
-      devTools: !app.isPackaged,
+      // devTools: !app.isPackaged,
     },
     parent: mainWindow,
     modal: true,
@@ -166,9 +166,10 @@ export function createWindow(title: string, entry: any): void {
 
   configWin.loadURL(entry);
 
-  if (!app.isPackaged) {
-    configWin.webContents.openDevTools();
-  }
+  // if (!app.isPackaged) {
+  //   configWin.webContents.openDevTools();
+  // }
+  configWin.webContents.openDevTools();
 
   configWin.once('ready-to-show', () => {
     configWin.show();
@@ -430,7 +431,7 @@ export function createProject(projectPath: string, protocolFileSource: string, w
 
   if (protocolFileSource === "default") {
     if (app.isPackaged) {
-      protocolFileSource = path.join(app.getPath("exe"), 'resources/app/.webpack/resources', PROTOCOL_CONFIG_FILE_NAME);
+      protocolFileSource = path.join(path.dirname(app.getPath("exe")), 'resources/app/.webpack/resources', PROTOCOL_CONFIG_FILE_NAME);
     } else {
       protocolFileSource = path.join(__dirname, '../resources', PROTOCOL_CONFIG_FILE_NAME);
     }
@@ -438,7 +439,7 @@ export function createProject(projectPath: string, protocolFileSource: string, w
 
   if (webviewMenuFileSource === "default") {
     if (app.isPackaged) {
-      webviewMenuFileSource = path.join(app.getPath("exe"), 'resources/app/.webpack/resources', WEBVIEW_MENU_CONFIG_FILE_NAME);
+      webviewMenuFileSource = path.join(path.dirname(app.getPath("exe")), 'resources/app/.webpack/resources', WEBVIEW_MENU_CONFIG_FILE_NAME);
     } else {
       webviewMenuFileSource = path.join(__dirname, '../resources', WEBVIEW_MENU_CONFIG_FILE_NAME);
     }

@@ -3,7 +3,7 @@ const plugins = require('./webpack.plugins');
 
 const CopyPlugin = require('copy-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const CircularDependencyPlugin = require('circular-dependency-plugin')
+// const CircularDependencyPlugin = require('circular-dependency-plugin')
 
 // const darkTheme = require('@ant-design/dark-theme');
 // import darkTheme from '@ant-design/dark-theme'
@@ -35,15 +35,16 @@ rules.push({
   use: [{ loader: 'file-loader' }],
 });
 
+// https://github.com/electron-userland/electron-forge/issues/1196
 rules.push({
   test: /\.ttf$/,
   use: [{ loader: 'file-loader' }],
 });
 
-rules.push({
-  test: /\.less$/,
-  use: [{ loader: 'style-loader' }, { loader: 'css-loader' }, { loader: 'less-loader' }],
-});
+// rules.push({
+//   test: /\.less$/,
+//   use: [{ loader: 'style-loader' }, { loader: 'css-loader' }, { loader: 'less-loader' }],
+// });
 
 plugins.push(new CopyPlugin({
   patterns: [
@@ -51,11 +52,9 @@ plugins.push(new CopyPlugin({
   ],
 }));
 
-plugins.push(new MonacoWebpackPlugin({
-  features: [!'codelens']
-}));
+plugins.push(new MonacoWebpackPlugin());
 
-plugins.push(new CircularDependencyPlugin());
+// plugins.push(new CircularDependencyPlugin());
 
 // rules.push({
 //   test:  /\.less$/,
@@ -82,6 +81,18 @@ module.exports = {
   // externals: {
   //   'node-pty': 'commonjs node-pty',
   // },
+  /**
+   * Important: setting the publicPath
+   * 
+   * It seems that Electron forge emits static files into ./.webpack/renderer directory.
+   * This does not cause problem during development, but after packaging
+   * the default public path for these static files is the directory of the renderer process,
+   * for example, .webpack/renderer/main_window for renderer process named main_window. 
+   * So we must set publicPath to "../", otherwise the static files cannot be found after packaging.
+   */
+  output: {
+    publicPath: '../',
+  },
   module: {
     rules,
   },

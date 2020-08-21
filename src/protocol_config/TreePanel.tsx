@@ -197,6 +197,7 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
 
         const input = document.createElement("input");
         input.type = "text";
+        input.classList.add("ant-input");
         const inputLi = document.createElement("li");
         inputLi.append(input);
 
@@ -329,6 +330,7 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
         errMsg.hidden = true;
 
         const input = document.createElement("input");
+        input.classList.add("ant-input");
         input.type = "text";
         input.value = span.textContent;
 

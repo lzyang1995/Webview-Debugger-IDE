@@ -57,7 +57,7 @@ const createMainWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  console.log("webcontents id:", mainWindow.webContents.id);
+  // console.log("webcontents id:", mainWindow.webContents.id);
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.maximize();
@@ -69,7 +69,7 @@ const createMainWindow = (): void => {
   })
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished

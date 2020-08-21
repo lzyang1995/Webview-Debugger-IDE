@@ -19,6 +19,8 @@ body {
 
 .gutter-vertical {
     background-color: rgb(35, 35, 35);
+    position: relative;
+    z-index: 100;
 }
 
 .gutter-horizontal:hover {

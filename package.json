@@ -5,10 +5,10 @@
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "start": "cross-env NODE_ENV=development electron-forge start",
+    "package": "cross-env NODE_ENV=production electron-forge package",
+    "make": "cross-env NODE_ENV=production electron-forge make",
+    "publish": "cross-env NODE_ENV=production electron-forge publish",
     "lint": "eslint --ext .ts ."
   },
   "keywords": [],
@@ -66,16 +66,6 @@
                   "name": "protocol_config"
                 },
                 {
-                  "html": "./src/test_win/index.html",
-                  "js": "./src/test_win/renderer.tsx",
-                  "name": "test_win"
-                },
-                {
-                  "html": "./src/terminal/index.html",
-                  "js": "./src/terminal/renderer.tsx",
-                  "name": "terminal"
-                },
-                {
                   "html": "./src/new_project/index.html",
                   "js": "./src/new_project/renderer.tsx",
                   "name": "new_project"
@@ -101,6 +91,7 @@
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
     "copy-webpack-plugin": "^6.0.3",
+    "cross-env": "^7.0.2",
     "css-loader": "^3.0.0",
     "electron": "9.2.0",
     "eslint": "^6.8.0",

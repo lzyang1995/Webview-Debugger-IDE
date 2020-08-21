@@ -76,8 +76,8 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
         ];
 
         this.state = {
-            dataSource: [],
-            selectedRowKeys: []
+            dataSource: null,
+            selectedRowKeys: null
         }
 
         this.handleDelete = this.handleDelete.bind(this);
@@ -94,8 +94,8 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
         if (config === null) {
             // no config file
             this.setState({
-                dataSource: [],
-                selectedRowKeys: []
+                dataSource: null,
+                selectedRowKeys: null
             })
         } else {
             const dataSource = [];
@@ -133,6 +133,9 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
             codeLens: false,
         });
 
+        editor.layout();
+        editor.focus();
+
         editor.onDidFocusEditorText(() => {
             errMsg.textContent = ""
         });
@@ -156,11 +159,6 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
                 dataSource,
             });
         });
-
-        setTimeout(() => {
-            editor.layout();
-            editor.focus();
-        }, 500);
     }
 
     handleDelete(key: number): void {
@@ -226,6 +224,16 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
 
     render(): JSX.Element {
         const { dataSource, selectedRowKeys } = this.state;
+
+        if (dataSource === null && selectedRowKeys === null) {
+            return (
+                <div className="noConfig">
+                    <span>
+                        {"No configuration file found. Maybe you haven't open a project?"}
+                    </span>
+                </div>
+            );
+        }
 
         const paramNames = dataSource.map(item => item.name);
 

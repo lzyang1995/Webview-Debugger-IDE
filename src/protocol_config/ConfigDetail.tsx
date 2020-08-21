@@ -157,12 +157,18 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
         errMsg.style.color = "red";
         errMsg.hidden = true;
 
+        target.replaceWith(editorContainer);
+        editorContainer.after(errMsg);
+
         const editor = monaco.editor.create(editorContainer, {
             value: target.textContent,
             language: 'json',
             theme: "vs-dark",
             codeLens: false,
         });
+
+        editor.layout();
+        editor.focus();
 
         editor.onDidFocusEditorText(() => {
             errMsg.hidden = true;
@@ -197,14 +203,6 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
             editorContainer.replaceWith(target); // This can work... great.
             this.props.setConfig(newConfig);
         })
-
-        setTimeout(() => {
-            editor.layout();
-            editor.focus();
-        }, 500);
-
-        target.replaceWith(editorContainer);
-        editorContainer.after(errMsg);
     }
 
     render(): JSX.Element {

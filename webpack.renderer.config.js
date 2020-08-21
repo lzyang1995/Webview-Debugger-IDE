@@ -27,22 +27,10 @@ plugins.push(new CopyPlugin({
 
 plugins.push(new MonacoWebpackPlugin());
 
-module.exports = {
+const configObj = {
   // externals: {
   //   'node-pty': 'commonjs node-pty',
   // },
-  /**
-   * Important: setting the publicPath
-   * 
-   * It seems that Electron forge emits static files into ./.webpack/renderer directory.
-   * This does not cause problem during development, but after packaging
-   * the default public path for these static files is the directory of the renderer process,
-   * for example, .webpack/renderer/main_window for renderer process named main_window. 
-   * So we must set publicPath to "../", otherwise the static files cannot be found after packaging.
-   */
-  output: {
-    publicPath: '../',
-  },
   module: {
     rules,
   },
@@ -50,4 +38,87 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css']
   },
-};
+}
+
+/**
+ * Important: setting the publicPath
+ * 
+ * It seems that Electron forge emits static files into ./.webpack/renderer directory.
+ * This does not cause problem during development, but after packaging
+ * the default public path for these static files is the directory of the renderer process,
+ * for example, .webpack/renderer/main_window for renderer process named main_window. 
+ * So we must set publicPath to "../", otherwise the static files cannot be found after packaging.
+ */
+if (process.env.NODE_ENV === 'production') {
+  Object.assign(configObj, {
+    output: {
+      publicPath: '../',
+    }
+  })
+}
+
+module.exports = configObj;
+
+// console.log(process.env.NODE_ENV);
+
+// function config(env) {
+//   console.log(env);
+//   const configObj = {
+//     // externals: {
+//     //   'node-pty': 'commonjs node-pty',
+//     // },
+//     module: {
+//       rules,
+//     },
+//     plugins: plugins,
+//     resolve: {
+//       extensions: ['.js', '.ts', '.jsx', '.tsx', '.css']
+//     },
+//   }
+
+//   /**
+//    * Important: setting the publicPath
+//    * 
+//    * It seems that Electron forge emits static files into ./.webpack/renderer directory.
+//    * This does not cause problem during development, but after packaging
+//    * the default public path for these static files is the directory of the renderer process,
+//    * for example, .webpack/renderer/main_window for renderer process named main_window. 
+//    * So we must set publicPath to "../", otherwise the static files cannot be found after packaging.
+//    */
+//   if (env === 'prod') {
+//     Object.assign(configObj, {
+//       output: {
+//         publicPath: '../',
+//       }
+//     })
+//   }
+
+//   return configObj;
+// }
+
+// module.exports = config;
+
+// module.exports = {
+//   // externals: {
+//   //   'node-pty': 'commonjs node-pty',
+//   // },
+//   /**
+//    * Important: setting the publicPath
+//    * 
+//    * It seems that Electron forge emits static files into ./.webpack/renderer directory.
+//    * This does not cause problem during development, but after packaging
+//    * the default public path for these static files is the directory of the renderer process,
+//    * for example, .webpack/renderer/main_window for renderer process named main_window. 
+//    * So we must set publicPath to "../", otherwise the static files cannot be found after packaging.
+//    */
+//   output: {
+//     publicPath: '../',
+//   },
+//   module: {
+//     rules,
+//   },
+//   plugins: plugins,
+//   resolve: {
+//     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css']
+//   },
+// };

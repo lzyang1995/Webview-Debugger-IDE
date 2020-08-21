@@ -139,7 +139,7 @@ export class App extends React.Component<{}, AppStates> {
             //     mobile: true,
             // })
 
-            webviewBodyView.loadURL("https://github.com/");
+            webviewBodyView.loadURL("https://m.baidu.com/");
 
             webviewBody.setDevToolsWebContents(this.consoleRef.current.getBrowserView().webContents);
             webviewBody.openDevTools();
@@ -176,6 +176,14 @@ export class App extends React.Component<{}, AppStates> {
 
             this.setState({
                 tabs: newTabs
+            }, () => {
+                const { focusedIndex, tabs } = this.state;
+
+                if (tabs.length > 0) {
+                    this.editor.focus();
+                    this.editor.revealPositionInCenter(tabs[focusedIndex].position);
+                    this.editor.setPosition(tabs[focusedIndex].position);
+                }
             })
         });
 
@@ -333,7 +341,7 @@ export class App extends React.Component<{}, AppStates> {
             const resultClone = cloneDeep(result);
             this.strToElement(resultClone);
 
-            let oldContent; 
+            let oldContent;
             const newContent = resultClone as Array<any>;
             const node = this.findNodeByKey(newTreeData, dirPath);
             if (dirPath === this.projectRootPath) {
@@ -347,7 +355,7 @@ export class App extends React.Component<{}, AppStates> {
                 oldContentMap.set(item.key, item);
             }
 
-            for (let i = 0;i < newContent.length;i++) {
+            for (let i = 0; i < newContent.length; i++) {
                 const key = newContent[i].key;
                 if (oldContentMap.has(key)) {
                     newContent[i] = oldContentMap.get(key);
@@ -450,13 +458,15 @@ export class App extends React.Component<{}, AppStates> {
     }
 
     handleFileSelect(seletedFile: File): void {
-        const { tabs } = this.state;
+        const { focusedIndex, tabs } = this.state;
         const ind = tabs.findIndex(item => item.fullpath === seletedFile.fullpath);
 
         if (ind === -1) {
             const fileContent = readAndWatchRegularFile(seletedFile.fullpath);
             const model = monaco.editor.createModel(fileContent, null, monaco.Uri.file(seletedFile.fullpath));
-            const newTabs = [...tabs, {
+
+            const newTabs = [...tabs];
+            newTabs.splice(focusedIndex + 1, 0, {
                 initVal: fileContent,
                 position: {
                     column: 1,
@@ -465,9 +475,9 @@ export class App extends React.Component<{}, AppStates> {
                 fullpath: seletedFile.fullpath,
                 model: model,
                 changed: false
-            }];
+            });
             this.setState({
-                focusedIndex: newTabs.length - 1,
+                focusedIndex: focusedIndex + 1,
                 tabs: newTabs
             });
         } else {

@@ -102,7 +102,13 @@ export class ProtocolConfig extends React.Component<{}, ProtocolConfigState> {
         const { selectedItem, config } = this.state;
 
         if (config === null) {
-            return <div></div>;
+            return (
+                <div className="noConfig">
+                    <span>
+                        {"No configuration file found. Maybe you haven't open a project?"}
+                    </span>
+                </div>
+            );
         }
 
         return (

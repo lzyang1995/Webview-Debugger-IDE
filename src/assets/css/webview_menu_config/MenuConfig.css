@@ -5,6 +5,15 @@
     background-color: rgb(36, 36, 36);
 }
 
+.noConfig {
+    width: 100vw;
+    height: calc(100vh - 30px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(36, 36, 36);
+}
+
 .configTable {
     flex: auto;
     overflow: auto;

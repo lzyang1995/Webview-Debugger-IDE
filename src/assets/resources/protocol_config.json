@@ -9,7 +9,7 @@
                 {
                     "name": "settitle",
                     "isLeaf": true,
-                    "successMsg": "设置webview标题",
+                    "successMsg": "Setting webview title succeeds!",
                     "params": [
                         {
                             "key": 1,
@@ -26,14 +26,18 @@
                         {
                             "name": "getContact",
                             "isLeaf": true,
-                            "successMsg": "获取联系人信息成功！",
+                            "successMsg": "Getting contact information succeeds！",
                             "params": [
                                 {
                                     "key": 1,
                                     "name": "callback",
                                     "type": "callback",
                                     "data": {
-                                        "aaaa": "hohoho"
+                                        "contacts": [
+                                            "John",
+                                            "Mary",
+                                            "Lily"
+                                        ]
                                     }
                                 }
                             ]

@@ -1,6 +1,6 @@
-import { Menu, dialog } from 'electron';
-import { 
-    createWindow, 
+import { Menu, dialog, app } from 'electron';
+import {
+    createWindow,
     openFile,
     closeProject,
     openProject,
@@ -9,6 +9,31 @@ import {
 declare const WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY: any;
 declare const PROTOCOL_CONFIG_WEBPACK_ENTRY: any;
 declare const NEW_PROJECT_WEBPACK_ENTRY: any;
+
+const toolMenu: any = {
+    label: "Tools",
+    submenu: [
+        {
+            label: "Protocol Configuration",
+            click(): void {
+                createWindow("Protocol Configuration", PROTOCOL_CONFIG_WEBPACK_ENTRY);
+            }
+        },
+        {
+            label: "Webview Menu Configuration",
+            click(): void {
+                createWindow("Webview Menu Configuration", WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY);
+            }
+        },
+    ]
+};
+
+if (!app.isPackaged) {
+    toolMenu.submenu.push({
+        label: "Toggle Devtools",
+        role: "toggleDevTools"
+    });
+}
 
 const template: Array<Electron.MenuItemConstructorOptions> = [
     {
@@ -119,27 +144,42 @@ const template: Array<Electron.MenuItemConstructorOptions> = [
             }
         ],
     },
-    {
-        label: "Tools",
-        submenu: [
-            {
-                label: "Protocol Configuration",
-                click(): void {
-                    createWindow("Protocol Configuration", PROTOCOL_CONFIG_WEBPACK_ENTRY);
-                }
-            },
-            {
-                label: "Webview Menu Configuration",
-                click(): void {
-                    createWindow("Webview Menu Configuration", WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY);
-                }
-            },
-            {
-                label: "Toggle Devtools",
-                role: "toggleDevTools"
-            }
-        ]
-    },
+    // {
+    //     label: 'Edit',
+    //     submenu: [
+    //         {
+    //             label: 'Undo',
+    //             accelerator: 'CommandOrControl+Z',
+    //             role: 'undo',
+    //         },
+    //         {
+    //             label: 'Redo',
+    //             accelerator: 'Shift+CommandOrControl+Z',
+    //             role: 'redo',
+    //         },
+    //         {
+    //             label: 'Cut',
+    //             accelerator: 'CommandOrControl+X',
+    //             role: 'cut',
+    //         },
+    //         {
+    //             label: 'Copy',
+    //             accelerator: 'CommandOrControl+C',
+    //             role: 'copy',
+    //         },
+    //         {
+    //             label: 'Paste',
+    //             accelerator: 'CommandOrControl+V',
+    //             role: 'paste',
+    //         },
+    //         {
+    //             label: 'Select All',
+    //             accelerator: 'CommandOrControl+A',
+    //             role: 'selectAll',
+    //         },
+    //     ],
+    // },
+    toolMenu
 ];
 
 const menu = Menu.buildFromTemplate(template);

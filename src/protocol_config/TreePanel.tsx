@@ -56,17 +56,6 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
         ul.append(this.createTree(config, "", ""));
 
         document.getElementById("treePanel").append(ul);
-
-        // add gutter to right border of Tree Panel
-        // const treePanelContainer = document.getElementById(TREE_PANEL_CONTAINER_ID);
-        // const timer = setInterval(() => {
-        //     const gutter = document.querySelector(".gutter-horizontal");
-        //     console.log(gutter);
-        //     if (gutter) {
-        //         treePanelContainer.append(gutter);
-        //         clearInterval(timer);
-        //     }
-        // }, 100);
     }
 
     componentDidUpdate(prevProps: TreePanelProps): void {
@@ -175,19 +164,6 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
                 canEdit,
             });
         }
-        // else {
-        //     if (this.focusedSpan) {
-        //         this.focusedSpan.classList.remove(FOCUSED_SPAN_CLASS);
-        //     }
-        //     this.focusedSpan = null;
-
-        //     this.props.setSelectedItem("");
-        //     this.setState({
-        //         canAdd: false,
-        //         canDelete: false,
-        //         canEdit: false,
-        //     })
-        // }
     }
 
     handleAdd(): void {
@@ -262,7 +238,7 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
             const newProtocol: ConfigLeaf = {
                 name: val,
                 isLeaf: true,
-                successMsg: "协议" + successMsg + "执行成功！",
+                successMsg: "Protocol " + successMsg + " succeeds！",
                 params: [],
             };
 
@@ -303,7 +279,7 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
         if (cur.descendants.length === 0) {
             cur.isLeaf = true;
             delete cur.descendants;
-            cur.successMsg = "协议" + parentPath + "执行成功！";
+            cur.successMsg = "Protocol " + parentPath + " succeeds！";
             cur.params = [];
         }
 
@@ -405,10 +381,10 @@ export class TreePanel extends React.Component<TreePanelProps, TreePanelStates> 
                 </div>
                 <div className="treePanelButtons">
                     <Space>
-                        <Button onClick={this.handleAdd} disabled={!canAdd}>添加</Button>
-                        <Button onClick={this.handleEdit} disabled={!canEdit}>编辑</Button>
-                        <Popconfirm title="确认删除?" onConfirm={this.handleDelete}>
-                            <Button disabled={!canDelete}>删除</Button>
+                        <Button onClick={this.handleAdd} disabled={!canAdd}>Add</Button>
+                        <Button onClick={this.handleEdit} disabled={!canEdit}>Edit</Button>
+                        <Popconfirm title="Sure to Delete?" onConfirm={this.handleDelete}>
+                            <Button disabled={!canDelete}>Delete</Button>
                         </Popconfirm>
                         <span></span>
                     </Space>

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'antd/dist/antd.dark.css';
-// import 'antd/dist/antd.css';
 
 import { Titlebar, Color, RGBA } from 'custom-electron-titlebar';
 import { MenuConfig } from './MenuConfig';

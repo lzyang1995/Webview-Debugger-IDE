@@ -6,8 +6,6 @@ import * as monaco from 'monaco-editor';
 import cloneDeep from 'lodash.clonedeep';
 import InlineSVG from 'svg-inline-react';
 import path from 'path';
-// import FileTree from 'react-filetree-electron';
-// import fsFileTree from 'fs-file-tree';
 
 import { WEBVIEW_BODY_ID, Emulator } from './Emulator';
 import { FileExplorer } from './FileExplorer';
@@ -33,10 +31,6 @@ export interface Tab {
     model: monaco.editor.ITextModel;
 }
 
-// export interface AppProps {
-//     win: Electron.BrowserWindow;
-// }
-
 export interface AppStates {
     emulatorMinWidth: number;
     focusedIndex: number;
@@ -55,12 +49,8 @@ export class App extends React.Component<{}, AppStates> {
     private lastCheckContentTime: number;
     private checkContentInterval: number;
 
-    // private devtoolView: Electron.BrowserView;
-    // private devtoolsPanel: HTMLElement;
-
     private editor: monaco.editor.IStandaloneCodeEditor;
 
-    // private editor: monaco.editor.IStandaloneCodeEditor;
     private consoleRef: React.RefObject<Console>;
 
     private newFileKey: number;
@@ -71,7 +61,6 @@ export class App extends React.Component<{}, AppStates> {
 
         this.lastExecTime = null;
         this.execInterval = 10;
-        // this.devtoolView = new BrowserView();
 
         this.lastCheckContentTime = null;
         this.checkContentInterval = 500;
@@ -99,37 +88,14 @@ export class App extends React.Component<{}, AppStates> {
     }
 
     componentDidMount(): void {
-        // this.devtoolsPanel = document.getElementById("console-content");
-
-        // const editorDiv = document.getElementById("editor");
-
-        // const emulatorDiv = document.getElementById("emulator");
-        // const fileExplorerDiv = document.getElementById("file-explorer");
-
-        // const bodyDiv = document.getElementById("body");
-        // const horizontalGutters = bodyDiv.querySelectorAll(".gutter-horizontal");
-
-        // emulatorDiv.append(horizontalGutters[0]);
-        // fileExplorerDiv.append(horizontalGutters[1]);
-
-        // editorDiv.append(bodyDiv.querySelector(".gutter-vertical"));
-
-        // this.props.win.setBrowserView(this.devtoolView);
-
-        // const emulatorBrowserView = this.emulatorRef.current.getBrowserView();
-        // const emulatorWebcontents = emulatorBrowserView.webContents;
-
-        // emulatorWebcontents.loadURL("https://m.baidu.com");
-        // emulatorWebcontents.setDevToolsWebContents(this.consoleRef.current.getBrowserView().webContents);
-        // emulatorWebcontents.openDevTools({mode: "detach"});
-
         const webviewBodyView = document.getElementById(WEBVIEW_BODY_ID) as Electron.WebviewTag;
         (webviewBodyView as HTMLElement).addEventListener('dom-ready', () => {
-            // webviewBodyView.setUserAgent("Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Mobile Safari/537.36");
-            // console.log(webviewBodyView.getZoomFactor())
-            // webviewBodyView.setZoomFactor(2);
-            // console.log("webcontentsid:", webviewBodyView.getWebContentsId())
             const webviewBody = webContents.fromId(webviewBodyView.getWebContentsId());
+
+            /**
+             * Emulation.setEmitTouchEventsForMouse is buggy with webview.
+             * The whole application is set to touch mode when enable Emulation.setEmitTouchEventsForMouse.
+             */
             // try {
             //     webviewBody.debugger.attach('1.2');
             // } catch (err) {
@@ -173,38 +139,11 @@ export class App extends React.Component<{}, AppStates> {
             //     mobile: true,
             // })
 
-            // (webviewBodyView as HTMLElement).addEventListener("mousedown", () => {
-            //     webviewBody.debugger.sendCommand('Emulation.setEmitTouchEventsForMouse', {
-            //         enabled: true,
-            //     });
-            // });
-
-            // (webviewBodyView as HTMLElement).addEventListener("mouseleave", () => {
-            //     webviewBody.debugger.sendCommand('Emulation.setEmitTouchEventsForMouse', {
-            //         enabled: false,
-            //     });
-            // });
-
-            webviewBodyView.loadURL("https://m.baidu.com");
-            // console.log(webviewBodyView.getZoomFactor())
-
+            webviewBodyView.loadURL("https://github.com/");
 
             webviewBody.setDevToolsWebContents(this.consoleRef.current.getBrowserView().webContents);
             webviewBody.openDevTools();
         }, { once: true });
-
-        // const hammer = document.getElementById("hammer");
-        // const mc = new Hammer(hammer);
-        // mc.on('pan', function(event) {
-        //     console.log('pan');
-        //     console.log(event);
-        // })
-
-        // this.editor = monaco.editor.create(document.getElementById("editor"), {
-        //     value: 'console.log("Hello, world")',
-        //     language: 'javascript',
-        //     theme: "vs-dark",
-        // });
 
         this.editor = monaco.editor.create(document.getElementById("editorContent"), {
             model: null,
@@ -214,10 +153,6 @@ export class App extends React.Component<{}, AppStates> {
         setTimeout(() => {
             this.updateDevtoolAndEditorSize();
         }, 1000);
-
-        // fsFileTree("E:/cmb_project/weex-ide", (err: any, tree: any): void => {
-        //     console.log(tree);
-        // })
 
         ipcRenderer.on("editor-file-changed", (event, fullpath, content) => {
             const { tabs } = this.state;
@@ -365,6 +300,10 @@ export class App extends React.Component<{}, AppStates> {
 
         ipcRenderer.on("open-project", (event, projectRootPath) => {
             this.projectRootPath = projectRootPath;
+            // we want to change the icon property of treeData items from string to
+            // corresponding JSX Element. However, it seems that we can not change
+            // the object returned from methods of main process. Otherwise, the program 
+            // cannot start up. So we have to make a clone of it.
             const treeData = cloneDeep(getDirContent(projectRootPath));
             this.strToElement(treeData);
             this.setState({
@@ -461,11 +400,9 @@ export class App extends React.Component<{}, AppStates> {
     }
 
     findNodeByKey(data: Array<any>, key: string): any {
-        // console.log(data, key);
         if (key === this.projectRootPath) return data;
 
         const cur = data.find(item => this.isParentPath(item.key, key));
-        // console.log(cur);
 
         if (cur.key === key) {
             return cur;
@@ -496,15 +433,6 @@ export class App extends React.Component<{}, AppStates> {
     }
 
     updateDevtoolAndEditorSize(): void {
-        // const devtoolsrRect = this.devtoolsPanel.getBoundingClientRect();
-        // console.log(rect);
-        // console.log(rect);
-        // this.devtoolView.setBounds({
-        //     x: Math.round(devtoolsrRect.x),
-        //     y: Math.round(devtoolsrRect.y),
-        //     width: Math.round(devtoolsrRect.width),
-        //     height: Math.round(devtoolsrRect.height)
-        // });
         this.setState({
             refreshDevtool: Math.random(),
         })
@@ -640,50 +568,3 @@ export class App extends React.Component<{}, AppStates> {
         );
     }
 }
-
-// export function App(props: AppProps): JSX.Element {
-//     return (
-//         <div id="container">
-//             <div id="head"></div>
-//             <Split
-//                 id="body"
-//                 sizes={[30, 25, 45]}
-//                 minSize={[500, 100, 200]}
-//                 expandToMin={true}
-//                 gutterSize={5}
-//                 gutterAlign="center"
-//                 snapOffset={0}
-//                 dragInterval={1}
-//                 direction="horizontal"
-//                 cursor="ew-resize"
-//                 elementStyle={getElementStyle}
-//                 gutterStyle={getGutterStyle}
-//             >
-//                 <div id="emulator">
-//                     {props.emulator}
-//                 </div>
-//                 <div id="file-explorer"></div>
-//                 <Split
-//                     id="editor-and-console"
-//                     sizes={[75, 25]}
-//                     minSize={[10, 0]}
-//                     expandToMin={true}
-//                     gutterSize={5}
-//                     gutterAlign="center"
-//                     snapOffset={0}
-//                     dragInterval={1}
-//                     direction="vertical"
-//                     cursor="ns-resize"
-//                 >
-//                     <div id="editor"></div>
-//                     <div id="console">
-//                         <div id="console-choice"></div>
-//                         <div id="console-content">
-//                             {props.consoleContent}
-//                         </div>
-//                     </div>
-//                 </Split>
-//             </Split>
-//         </div>
-//     );
-// }

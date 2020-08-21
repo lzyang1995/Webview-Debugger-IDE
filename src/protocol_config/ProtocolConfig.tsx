@@ -89,18 +89,6 @@ export class ProtocolConfig extends React.Component<{}, ProtocolConfigState> {
         })
     }
 
-    // getSelectedItemInfo(selectedItem: string): any {
-    //     const { config } = this.state;
-    //     const path = selectedItem.split('/').slice(2);
-
-    //     let cur = config as any;
-    //     for (const segment of path) {
-    //         cur = cur.descendants.find((item: ConfigLeaf | ConfigNode) => item.name === segment);
-    //     }
-
-    //     return cur;
-    // }
-
     onConfirm(): void {
         writeProtocolConfig(this.state.config);
         remote.getCurrentWindow().close();
@@ -116,13 +104,6 @@ export class ProtocolConfig extends React.Component<{}, ProtocolConfigState> {
         if (config === null) {
             return <div></div>;
         }
-
-        // let selectedItemInfo: ConfigLeaf;
-        // if (selectedItem === "") {
-        //     selectedItemInfo = null;
-        // } else {
-        //     selectedItemInfo = findNode(selectedItem, config);
-        // }
 
         return (
             <div className="container">
@@ -153,9 +134,9 @@ export class ProtocolConfig extends React.Component<{}, ProtocolConfigState> {
                 </Split>
                 <div className="buttons">
                     <Space>
-                        <Button>编辑配置文件</Button>
-                        <Button onClick={this.onConfirm}>确认</Button>
-                        <Button onClick={this.onCancel}>取消</Button>
+                        {/* <Button>编辑配置文件</Button> */}
+                        <Button onClick={this.onConfirm}>Confirm</Button>
+                        <Button onClick={this.onCancel}>Cancel</Button>
                         <span></span>
                     </Space>
                 </div>

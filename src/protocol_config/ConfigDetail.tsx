@@ -44,7 +44,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
             input.addEventListener("blur", () => {
                 const value = input.value;
                 if (value.trim() === "") {
-                    errMsg.textContent = "输入内容不能为空！";
+                    errMsg.textContent = "Cannot be empty";
                     errMsg.hidden = false;
                     return;
                 }
@@ -171,7 +171,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
         editor.onDidBlurEditorText(() => {
             const value = editor.getValue();
             if (value.trim() === "") {
-                errMsg.textContent = "输入内容不能为空！";
+                errMsg.textContent = "Cannot be empty";
                 errMsg.hidden = false;
                 return;
             }
@@ -238,7 +238,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
                 render: (_: any, record: ParamRegularItem | ParamCallbackItem): JSX.Element => {
                     if (dataSource.length >= 1) {
                         return (
-                            <Popconfirm title="确认删除?" onConfirm={() => this.handleDelete(record.key)}>
+                            <Popconfirm title="Sure to Delete?" onConfirm={() => this.handleDelete(record.key)}>
                                 <Button>Delete</Button>
                             </Popconfirm>
                         );
@@ -253,15 +253,6 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
             cur.successMsg = val;
         })
 
-        // const handleJsonDataClick = this.handleClick("textarea", (cur: ConfigLeaf, val: string): void => {
-        //     const params = cur.params;
-        //     const callbackItem = params.find(item => item.name === "callback") as ParamCallbackItem;
-
-        //     if (!callbackItem) throw new Error("No Callback Parameter Found");
-
-        //     callbackItem.data = JSON.parse(val);
-        // })
-
         return (
             <div className="configDetail">
                 <div className="successMsg">
@@ -275,7 +266,7 @@ export class ConfigDetail extends React.Component<ConfigDetailProps, {}> {
                         columns={tableCols}
                         handleSave={this.handleSave}
                     />
-                    <Button onClick={() => this.handleAdd("regular")}>添加</Button>
+                    <Button onClick={() => this.handleAdd("regular")}>Add</Button>
                 </div>
                 {
                     callbackItem ?

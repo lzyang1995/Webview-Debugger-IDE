@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function getElementStyle(
     dimension: "height" | "width",
     elementSize: number,

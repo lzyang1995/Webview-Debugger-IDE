@@ -100,7 +100,6 @@
     "@types/react-dom": "^16.9.8",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
-    "circular-dependency-plugin": "^5.2.0",
     "copy-webpack-plugin": "^6.0.3",
     "css-loader": "^3.0.0",
     "electron": "9.2.0",
@@ -109,7 +108,6 @@
     "eslint-plugin-react": "^7.20.5",
     "file-loader": "^6.0.0",
     "fork-ts-checker-webpack-plugin": "^3.1.1",
-    "less-loader": "^6.2.0",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "node-loader": "^0.6.0",
     "style-loader": "^0.23.1",
@@ -130,7 +128,6 @@
     "svg-inline-react": "^3.2.0",
     "vscode-icons-js": "^10.1.1",
     "xterm": "4.9.0-beta.8",
-    "xterm-addon-fit": "^0.4.0",
-    "xterm-for-react": "^1.0.4"
+    "xterm-addon-fit": "^0.4.0"
   }
 }

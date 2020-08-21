@@ -9,7 +9,6 @@ import { MAIN_MODULE } from '../constants';
 
 import '../assets/css/main_window/Emulator.css';
 import emulatedDevices from '../assets/emulated_devices.json';
-import meatballsImg from '../assets/images/meatballs.png';
 
 // export interface EmulatorProps {}
 // export interface EmulatorState {}
@@ -135,33 +134,11 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
         (this.webviewBody as HTMLElement).addEventListener('dom-ready', () => {
             this.domReady = true;
             this.webviewBody.setUserAgent(this.deviceOptions[0].userAgent);
-            
-            // const iframe = this.webviewBody.shadowRoot.querySelector("iframe");
-            // console.log(iframe);
-            // if (document.readyState === "loading") {
-            //     document.addEventListener("DOMContentLoaded", () => {
-            //         OverlayScrollbars(iframe, {});
-            //         console.log(iframe);
-            //     })
-            // } else {
-            //     OverlayScrollbars(iframe, {});
-            //     console.log(iframe);
-            // }
         }, {once: true});
 
         (this.webviewBody as HTMLElement).addEventListener('dom-ready', () => {
             this.webviewBody.insertCSS(scrollbarStyle);
         });
-
-        // const iframe = this.webviewBody.shadowRoot.querySelector("iframe");
-        // console.log(iframe);
-        // if (document.readyState === "loading") {
-        //     document.addEventListener("DOMContentLoaded", () => {
-        //         OverlayScrollbars(iframe, {});
-        //     })
-        // } else {
-        //     OverlayScrollbars(iframe, {});
-        // }
 
         protocol.registerStringProtocol("abc", this.protocolHandler);
     }
@@ -175,16 +152,15 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
     loadUrl(): void {
         if (!this.domReady) return;
 
-        console.log("loadurl")
-        this.webviewBody.clearHistory();
-        // this.webviewBody.loadURL("about:blank");
+        // console.log("loadurl")
+        // this.webviewBody.clearHistory();
         this.webviewBody.loadURL(this.state.url);
     }
 
     reload(): void {
         if (!this.domReady) return;
 
-        console.log("reload")
+        // console.log("reload")
         this.webviewBody.reload();
     }
 
@@ -193,7 +169,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
 
         if (this.domReady) {
             this.webviewBody.setUserAgent(selected.userAgent);
-            // this.webviewBody.reload();
+            this.webviewBody.reload();
         }
 
         this.setState({

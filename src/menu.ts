@@ -1,4 +1,4 @@
-import { Menu, dialog, TouchBarColorPicker } from 'electron';
+import { Menu, dialog } from 'electron';
 import { 
     createWindow, 
     openFile,

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { remote } from 'electron';
 import { Table, Button, Popconfirm, Space } from 'antd';
@@ -141,7 +140,7 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
         editor.onDidBlurEditorText(() => {
             const value = editor.getValue();
             if (value.trim() === "") {
-                errMsg.textContent = "输入内容不能为空！";
+                errMsg.textContent = "Cannot be empty";
                 return;
             }
 
@@ -277,9 +276,9 @@ export class MenuConfig extends React.Component<{}, MenuConfigStates> {
                 </div>
                 <div className="buttons">
                     <Space>
-                        <Button>编辑配置文件</Button>
-                        <Button onClick={this.onConfirm}>确认</Button>
-                        <Button onClick={this.onCancel}>取消</Button>
+                        {/* <Button>编辑配置文件</Button> */}
+                        <Button onClick={this.onConfirm}>Confirm</Button>
+                        <Button onClick={this.onCancel}>Cancel</Button>
                         <span></span>
                     </Space>
                 </div>

@@ -13,7 +13,6 @@ import fs from "fs";
 import { MAIN_MODULE } from '../constants';
 
 import '../assets/css/new_project/ProjectForm.css';
-import { RadioProps } from 'antd/lib/radio';
 
 const { dialog, app } = remote;
 const { createProject } = remote.require(MAIN_MODULE);

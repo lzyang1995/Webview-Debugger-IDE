@@ -6,12 +6,8 @@ import fs from 'fs';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const TEST_WIN_WEBPACK_ENTRY: any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-// export declare const WEBVIEW_MENU_CONFIG_WEBPACK_ENTRY: any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-// export declare const PROTOCOL_CONFIG_WEBPACK_ENTRY: any;
-// console.log(MAIN_WINDOW_WEBPACK_ENTRY);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -22,8 +18,6 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
  * Constants
  */
 
-// export const WEBVIEW_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'webview_config.json');
-// export const PROTOCOL_CONFIG_FILE_PATH = path.join(app.getPath("documents"), 'protocol_config.json');
 const WEBVIEW_MENU_CONFIG_FILE_NAME = "webview_menu_config.json";
 const PROTOCOL_CONFIG_FILE_NAME = "protocol_config.json";
 
@@ -35,7 +29,7 @@ if (app.isPackaged) {
   fileIconPath = path.join(__dirname, '../resources/vscode_file_icons');
 }
 
-console.log(__dirname)
+// console.log(__dirname)
 
 app.allowRendererProcessReuse = false;
 
@@ -78,49 +72,12 @@ const createMainWindow = (): void => {
   mainWindow.webContents.openDevTools();
 };
 
-function createTestWindow() {
-  // Create the browser window.
-  let testWindow = new BrowserWindow({
-    show: false,
-    webPreferences: {
-      nodeIntegration: true
-    },
-  });
-
-  // and load the index.html of the app.
-  testWindow.loadURL(TEST_WIN_WEBPACK_ENTRY);
-
-  testWindow.once('ready-to-show', () => {
-    testWindow.maximize();
-    testWindow.focus();
-  })
-
-  testWindow.on('closed', () => {
-    testWindow = null;
-  })
-}
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  // createTestWindow();
   Menu.setApplicationMenu(menu);
   createMainWindow();
-
-  // fs.watchFile(PROTOCOL_CONFIG_FILE_PATH, (cur, prev) => {
-  //   if (cur.mtimeMs !== prev.mtimeMs) {
-  //     const config = JSON.parse(fs.readFileSync(PROTOCOL_CONFIG_FILE_PATH).toString());
-  //     mainWindow.webContents.send('protocol-config-changed', config);
-  //   }
-  // });
-
-  // fs.watchFile(WEBVIEW_CONFIG_FILE_PATH, (cur, prev) => {
-  //   if (cur.mtimeMs !== prev.mtimeMs) {
-  //     const config = JSON.parse(fs.readFileSync(WEBVIEW_CONFIG_FILE_PATH).toString());
-  //     mainWindow.webContents.send('webview-menu-config-changed', config);
-  //   }
-  // })
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -245,29 +202,6 @@ export function getDirContent(dirPath: string): Array<any> {
 
   return resultDir.concat(resultFile);
 }
-
-// export function getFileTree(rootPath: string): Array<any> {
-//   const resultFile = [];
-//   const resultDir = [];
-//   const files = fs.readdirSync(rootPath);
-//   for (const file of files) {
-//     const filePath = path.join(rootPath, file);
-//     const item: any = {
-//       title: file,
-//       key: filePath,
-//     }
-
-//     if (fs.lstatSync(filePath).isDirectory()) {
-//       item.children = getFileTree(filePath);
-//       resultDir.push(item);
-//     } else {
-//       item.icon = getFileIcon(file);
-//       resultFile.push(item);
-//     }
-//   }
-
-//   return resultDir.concat(resultFile);
-// }
 
 export function readAndWatchRegularFile(fullpath: string): string {
   const result = fs.readFileSync(fullpath).toString();
@@ -506,7 +440,3 @@ export function createProject(projectPath: string, protocolFileSource: string, w
 //     }
 //   }
 // }
-
-// export { spawn };
-
-// console.log(getFileTree("E:/cmb_project/coding-75"));

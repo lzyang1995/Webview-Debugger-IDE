@@ -67,11 +67,6 @@ const createMainWindow = (): void => {
   mainWindow.on('closed', () => {
     mainWindow = null;
   })
-
-  // Open the DevTools.
-  if (!app.isPackaged) {
-    mainWindow.webContents.openDevTools();
-  }
 };
 
 // This method will be called when Electron has finished
@@ -358,6 +353,8 @@ export function openProject(): void {
     watchedFiles.add(webviewMenuConfigFilePath);
 
     mainWindow.webContents.send("open-project", projectRoot);
+    mainWindow.webContents.send('protocol-config-changed', JSON.parse(fs.readFileSync(protocolConfigFilePath).toString()));
+    mainWindow.webContents.send('webview-menu-config-changed', JSON.parse(fs.readFileSync(webviewMenuConfigFilePath).toString()));
   })
 }
 
@@ -406,6 +403,8 @@ export function createProject(projectPath: string, protocolFileSource: string, w
   watchedFiles.add(webviewMenuConfigFilePath);
 
   mainWindow.webContents.send("open-project", projectPath);
+  mainWindow.webContents.send('protocol-config-changed', JSON.parse(fs.readFileSync(protocolConfigFilePath).toString()));
+  mainWindow.webContents.send('webview-menu-config-changed', JSON.parse(fs.readFileSync(webviewMenuConfigFilePath).toString()));
 }
 
 // resolve: can proceed

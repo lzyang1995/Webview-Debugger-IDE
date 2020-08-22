@@ -37,7 +37,7 @@ export interface AppStates {
     tabs: Array<Tab>;
     refreshDevtool: number;
     fileExplorerTree: Array<any>;
-    projectName: string;
+    projectRootPath: string;
 }
 
 export class App extends React.Component<{}, AppStates> {
@@ -76,7 +76,7 @@ export class App extends React.Component<{}, AppStates> {
             tabs: [],
             refreshDevtool: Math.random(),
             fileExplorerTree: null,
-            projectName: null,
+            projectRootPath: null,
         }
 
         this.handleDrag = this.handleDrag.bind(this);
@@ -316,7 +316,7 @@ export class App extends React.Component<{}, AppStates> {
             this.strToElement(treeData);
             this.setState({
                 fileExplorerTree: treeData,
-                projectName: path.basename(projectRootPath),
+                projectRootPath,
             })
         });
 
@@ -331,7 +331,7 @@ export class App extends React.Component<{}, AppStates> {
                 focusedIndex: -1,
                 tabs: [],
                 fileExplorerTree: null,
-                projectName: null,
+                projectRootPath: null,
             });
         })
 
@@ -512,7 +512,9 @@ export class App extends React.Component<{}, AppStates> {
     }
 
     render(): JSX.Element {
-        const { emulatorMinWidth, focusedIndex, tabs, refreshDevtool, fileExplorerTree, projectName } = this.state;
+        const { emulatorMinWidth, focusedIndex, tabs, refreshDevtool, fileExplorerTree, projectRootPath } = this.state;
+
+        const projectName = projectRootPath === null ? null : path.basename(projectRootPath);
 
         if (focusedIndex !== -1) {
             this.editor.setModel(tabs[focusedIndex].model);
@@ -571,7 +573,11 @@ export class App extends React.Component<{}, AppStates> {
                             />
                             <div id="editorContent"></div>
                         </div>
-                        <Console ref={this.consoleRef} refreshDevtool={refreshDevtool} />
+                        <Console 
+                            ref={this.consoleRef} 
+                            refreshDevtool={refreshDevtool} 
+                            projectRootPath={projectRootPath}
+                        />
                     </Split>
                 </Split>
             </div>

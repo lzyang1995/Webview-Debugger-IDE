@@ -4,7 +4,7 @@ import BrowserView from 'react-electron-browser-view';
 import { ConsoleHeader } from './ConsoleHeader';
 
 import os from 'os';
-import { IPty, spawn } from 'node-pty';
+import { IPty, spawn, IDisposable } from 'node-pty';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 
@@ -13,7 +13,7 @@ import 'xterm/css/xterm.css';
 
 export interface ConsoleProps {
     refreshDevtool: number;
-    projectRootPath: string;
+    // projectRootPath: string;
 }
 
 export class Console extends React.Component<ConsoleProps, {}> {
@@ -22,12 +22,15 @@ export class Console extends React.Component<ConsoleProps, {}> {
     private ptyProcess: IPty;
     private xterm: Terminal;
     private fitAddon: FitAddon;
+    private ptyDataListener: IDisposable;
 
     constructor(props: ConsoleProps) {
         super(props);
 
         this.ptyProcess = null;
         this.xterm = null;
+        this.fitAddon = null;
+        this.ptyDataListener = null;
 
         this.handleTabChange = this.handleTabChange.bind(this);
     }
@@ -50,39 +53,67 @@ export class Console extends React.Component<ConsoleProps, {}> {
     }
 
     componentDidMount(): void {
-        this.afterRender(null);
+        const shell = process.env[os.platform() === 'win32' ? 'COMSPEC' : 'SHELL'];
+        this.ptyProcess = spawn(shell, [], {
+            name: 'xterm-color',
+            // cwd: this.props.projectRootPath === null ? process.cwd() : this.props.projectRootPath,
+            cwd: process.cwd(),
+            env: process.env,
+        });
+
+        this.fitAddon = new FitAddon();
+        
+        const consoleContent = document.body.querySelector(".consoleContent") as HTMLElement;
+        this.xterm = new Terminal();
+        this.xterm.loadAddon(this.fitAddon);
+        this.xterm.open(consoleContent);
+        this.fitAddon.fit();
+        // Setup communication between xterm.js and node-pty
+        this.xterm.onData(data => this.ptyProcess.write(data));
+        // this.ptyProcess.onData = (data: any) => {
+        //     this.xterm.write(data);
+        // };
+        this.ptyDataListener = this.ptyProcess.onData((data: any) => {
+            this.xterm.write(data);
+        });
     }
 
-    componentDidUpdate(prevProps: ConsoleProps): void {
-        this.afterRender(prevProps);
-    }
+    // componentDidUpdate(prevProps: ConsoleProps): void {
+    //     this.afterRender(prevProps);
+    // }
 
-    afterRender(prevProps: ConsoleProps): void {
-        if (prevProps === null || prevProps.projectRootPath !== this.props.projectRootPath) {
-            if (this.xterm) this.xterm.dispose();
-            if (this.ptyProcess) this.ptyProcess.kill();
+    // afterRender(prevProps: ConsoleProps): void {
+    //     if (prevProps !== null && this.props.projectRootPath === null) return;
 
-            const shell = process.env[os.platform() === 'win32' ? 'COMSPEC' : 'SHELL'];
-            this.ptyProcess = spawn(shell, [], {
-                name: 'xterm-color',
-                cwd: this.props.projectRootPath === null ? process.cwd() : this.props.projectRootPath,
-                env: process.env,
-            });
+    //     if (prevProps === null || prevProps.projectRootPath !== this.props.projectRootPath) {
+    //         if (this.ptyDataListener) this.ptyDataListener.dispose();
+    //         if (this.xterm) this.xterm.dispose();
+    //         if (this.ptyProcess) this.ptyProcess.kill();
 
-            this.fitAddon = new FitAddon();
+    //         const shell = process.env[os.platform() === 'win32' ? 'COMSPEC' : 'SHELL'];
+    //         this.ptyProcess = spawn(shell, [], {
+    //             name: 'xterm-color',
+    //             cwd: this.props.projectRootPath === null ? process.cwd() : this.props.projectRootPath,
+    //             env: process.env,
+    //         });
+
+    //         this.fitAddon = new FitAddon();
             
-            const consoleContent = document.body.querySelector(".consoleContent") as HTMLElement;
-            this.xterm = new Terminal();
-            this.xterm.loadAddon(this.fitAddon);
-            this.xterm.open(consoleContent);
-            this.fitAddon.fit();
-            // Setup communication between xterm.js and node-pty
-            this.xterm.onData(data => this.ptyProcess.write(data));
-            this.ptyProcess.on('data', (data: any) => {
-                this.xterm.write(data);
-            });
-        }
-    }
+    //         const consoleContent = document.body.querySelector(".consoleContent") as HTMLElement;
+    //         this.xterm = new Terminal();
+    //         this.xterm.loadAddon(this.fitAddon);
+    //         this.xterm.open(consoleContent);
+    //         this.fitAddon.fit();
+    //         // Setup communication between xterm.js and node-pty
+    //         this.xterm.onData(data => this.ptyProcess.write(data));
+    //         // this.ptyProcess.onData = (data: any) => {
+    //         //     this.xterm.write(data);
+    //         // };
+    //         this.ptyDataListener = this.ptyProcess.onData((data: any) => {
+    //             this.xterm.write(data);
+    //         });
+    //     }
+    // }
 
     fitTerminal(): void {
         this.fitAddon.fit();

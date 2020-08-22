@@ -51,5 +51,7 @@ Open the executable file, then select "Open Project" in the menu, and select the
 * Unsaved files are not prompted when closing project or whole application.
 * The format of the protocol and webview menu configuration files are not checked when loading and saving.
 * The terminal is currently kind of weird. Also, it does not support copy/paste which is inconvenient.
+* The terminal does not change to the project directory when we open a project.
 * We cannot add/edit/delete files in the File Explorer. Its content is auto-refreshed, however.
+* The H5 page in the emulator is affected by styles defined for the application.
 

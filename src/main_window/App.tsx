@@ -576,7 +576,7 @@ export class App extends React.Component<{}, AppStates> {
                         <Console 
                             ref={this.consoleRef} 
                             refreshDevtool={refreshDevtool} 
-                            projectRootPath={projectRootPath}
+                            // projectRootPath={projectRootPath}
                         />
                     </Split>
                 </Split>

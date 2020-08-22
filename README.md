@@ -39,19 +39,25 @@ The executable file is generated in the `out` folder. You can try it with an exa
 git clone https://github.com/lzyang1995/Webview-Debugger-IDE-Example-Project.git
 ```
 
-Open the executable file, then select "Open Project" in the menu, and select the folder of the example project. Then switch to the Terminal (It should be already at the project directory), run `yarn` to install dependencies, and run `yarn start` to start the development server. 
+Open the executable file, then select "Open Project" in the menu, and select the folder of the example project. Then switch to the Terminal, cd into the project directory, run `yarn` to install dependencies, and run `yarn start` to start the development server. Then you can input <http://localhost:3000/> (maybe another port) into the input field under the emulator and go to the H5 page. When clicking on the buttons, the custom protocol request will be sent and the IDE will give certain response. In the example H5 page, the first two requests are defined in the protocol configuration but the last one is not. 
 
+### Development
 
+Run the following command to debug the IDE:
 
+```
+npm run start
+```
 
 ## Remaining Problems to Solve
 
 * The emulator cannot emulate screen touch, like the device mode in Chrome DevTools.
 * Currently the protocol scheme is fixed as `abc://`. Will provide a way to customize later.
 * Unsaved files are not prompted when closing project or whole application.
-* The format of the protocol and webview menu configuration files are not checked when loading and saving.
-* The terminal is currently kind of weird. Also, it does not support copy/paste which is inconvenient.
+* The format of the protocol and webview menu configuration files are not checked during loading and saving.
+* The terminal is currently kind of weird. Also, it does not support copy/paste, which is inconvenient.
 * The terminal does not change to the project directory when we open a project.
 * We cannot add/edit/delete files in the File Explorer. Its content is auto-refreshed, however.
 * The H5 page in the emulator is affected by styles defined for the application.
+* Saving file is too slow.
 

@@ -1,6 +1,6 @@
 # Webview-Debugger-IDE
 
-An IDE-like App built with Electron for debugging HTML5 pages in mobile webview. It contains webview emulator, code editor, Chrome DevTools and terminal. More importantly, it emulates protocol-based interaction between HTML5 page and mobile webview. It is written during internship at CMB. However, currently it is still incomplete and needs improvement in many aspects. 
+An IDE-like App built with [Electron Forge](https://github.com/electron-userland/electron-forge) for debugging HTML5 pages in mobile webview. It contains webview emulator, code editor, Chrome DevTools and terminal. More importantly, it emulates protocol-based interaction between HTML5 page and mobile webview. It is written during internship at CMB. However, currently it is still incomplete and needs improvement in many aspects. 
 
 ## Background
 
@@ -12,14 +12,44 @@ To this end, I build such a simple IDE Application for debugging H5 pages to be 
 
 ## Usage
 
-The application has been tested on Windows system only. Firstly, clone this repository and also an example project repository:
+The application has been tested on Windows system only. Firstly, clone this repository:
 
 ```
 git clone https://github.com/lzyang1995/Webview-Debugger-IDE.git
-git clone https://github.com/lzyang1995/Webview-Debugger-IDE-Example-Project.git
 cd Webview-Debugger-IDE
+```
+
+Install the dependencies:
+
+```
+.\npm_install.bat
 ```
 
 ### Production
 
+Run the following command to package and generate the distributables:
+
+```
+npm run make
+```
+
+The executable file is generated in the `out` folder. You can try it with an example project:
+
+```
+git clone https://github.com/lzyang1995/Webview-Debugger-IDE-Example-Project.git
+```
+
+Open the executable file, then select "Open Project" in the menu, and select the folder of the example project. Then switch to the Terminal (It should be already at the project directory), run `yarn` to install dependencies, and run `yarn start` to start the development server. 
+
+
+
+
+## Remaining Problems to Solve
+
+* The emulator cannot emulate screen touch, like the device mode in Chrome DevTools.
+* Currently the protocol scheme is fixed as `abc://`. Will provide a way to customize later.
+* Unsaved files are not prompted when closing project or whole application.
+* The format of the protocol and webview menu configuration files are not checked when loading and saving.
+* The terminal is currently kind of weird. Also, it does not support copy/paste which is inconvenient.
+* We cannot add/edit/delete files in the File Explorer. Its content is auto-refreshed, however.
 

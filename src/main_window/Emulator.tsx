@@ -187,7 +187,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorStates> {
 
         const schemeLen = 6;
 
-        const paths = url.slice(schemeLen).split("/"); // length of "abc://" is 10
+        const paths = url.slice(schemeLen).split("/"); // length of "abc://" is 6
         const lastPath = paths.pop();
         const indQuestionMark = lastPath.indexOf("?");
         let params: Array<string> = [];

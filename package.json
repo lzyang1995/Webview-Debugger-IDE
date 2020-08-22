@@ -1,8 +1,8 @@
 {
-  "name": "my-new-app",
-  "productName": "my-new-app",
+  "name": "Webview-Debugger-IDE",
+  "productName": "Webview-Debugger-IDE",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "An IDE-like App for debugging HTML5 pages in mobile webview. It contains webview emulator, code editor, Chrome DevTools and terminal. More importantly, it emulates protocol-based interaction between HTML5 page and mobile webview.",
   "main": ".webpack/main",
   "scripts": {
     "start": "cross-env NODE_ENV=development electron-forge start",
@@ -11,7 +11,7 @@
     "publish": "cross-env NODE_ENV=production electron-forge publish",
     "lint": "eslint --ext .ts ."
   },
-  "keywords": [],
+  "keywords": ["Webview", "Debugger", "IDE"],
   "author": {
     "name": "lzyang1995",
     "email": "lzyang1995@outlook.com"

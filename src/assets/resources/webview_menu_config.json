@@ -9,8 +9,8 @@
         }
     },
     {
-        "name": "commomCallback",
-        "callback": "commomCallback",
+        "name": "getContactCallback",
+        "callback": "getContactCallback",
         "enabled": true,
         "data": {
             "contacts": [
